@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>京韵 · 国粹京剧艺术平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth}
+:root{
+    --top-color: #a02020;    
+    --middle-color: #f5f0e1; 
+    --opera-gold: #e6b800;   
+    --opera-black: #0a0a0a;   
+    --text-dark: #333;        
+    --text-light: #f9f6f0;    
+}
+
+.curtain{
+    position:fixed;top:0;width:50%;height:100vh;
+    background:var(--top-color);z-index:9999;
+    transition:1.8s cubic-bezier(.25,.1,.25,1)
+}
+.curtain.left{left:0}
+.curtain.right{right:0}
+body.open .curtain.left{transform:translateX(-100%)}
+body.open .curtain.right{transform:translateX(100%)}
+
+nav{
+    position:fixed;top:0;width:100%;
+    background:rgba(160, 32, 32, 0.9); 
+    backdrop-filter:blur(10px);
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 30px;z-index:998
+}
+.logo{color:var(--opera-gold);font-size:24px;font-weight:bold}
+.nav a{color:var(--text-light);margin:0 16px;text-decoration:none;transition:.3s}
+.nav a:hover{color:var(--opera-gold)}
+
+.slider{width:100%;height:100vh;position:relative;background: #222;}
+.slide{
+    width:100%;height:100%;position:absolute;
+    background-size:cover;background-position:center;
+    opacity:0;transition:opacity 1.2s
+}
+.slide.active{opacity:1}
+.slide .txt{
+    position:absolute;bottom:120px;left:50%;transform:translateX(-50%);
+    background:rgba(160, 32, 32, 0.7); 
+    padding:20px 40px;
+    border:2px solid var(--opera-gold);border-radius:8px;text-align:center
+}
+.slide .txt h2{color:var(--opera-gold);font-size:28px;margin-bottom:8px}
+.btn{
+    position:absolute;bottom:50px;left:50%;transform:translateX(-50%);
+    background:var(--top-color);color:var(--text-light);border:2px solid var(--opera-gold);
+    padding:14px 36px;font-size:18px;cursor:pointer;border-radius:4px
+}
+.btn:hover{background:#8c1b1b;}
+
+body{
+    background: var(--middle-color); 
+    color: var(--text-dark); 
+}
+
+.section{
+    max-width:1200px;margin:0 auto;padding:80px 20px;
+    background:var(--middle-color); 
+}
+.title{
+    text-align:center;color:var(--top-color);
+    font-size:36px;margin-bottom:50px;position:relative
+}
+.title::after{
+    content:"";width:80px;height:3px;background:var(--top-color);
+    position:absolute;bottom:-12px;left:50%;transform:translateX(-50%)
+}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:30px}
+.card{
+    background:#fff;
+    border:1px solid #e0d8c0;
+    border-radius:12px;overflow:hidden;transition:.4s;position:relative;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.card:hover{transform:translateY(-10px);box-shadow:0 0 25px rgba(160, 32, 32, 0.2);}
+.card img{width:100%;height:360px;object-fit:cover;transition:.4s}
+.card .info{padding:20px}
+.card .info h3{color:var(--top-color);margin-bottom:10px}
+
+#play .card {overflow: hidden;}
+#play .card img {filter: brightness(1);}
+#play .card:hover img {filter: brightness(1.2);}
+#play .card .intro {
+    position: absolute;top: 0;left: 0;width: 100%;height: 100%;
+    background: rgba(160, 32, 32, 0.8);
+    color: var(--text-light);padding: 30px 20px;
+    display: flex;flex-direction: column;justify-content: center;
+    opacity: 0;transition: opacity 0.4s;pointer-events: none;
+}
+#play .card:hover .intro {opacity: 1;}
+#play .card .intro h3 {color:var(--opera-gold);font-size:24px;margin-bottom:15px;text-align:center;}
+#play .card .intro p {line-height:1.6;font-size:16px;text-align:center;}
+
+#role .card {overflow: hidden;}
+#role .card img {filter: brightness(1);transition: filter 0.4s;}
+#role .card:hover img {filter: brightness(1.2);}
+#role .card .intro {
+    position: absolute;top: 0;left: 0;width: 100%;height: 100%;
+    background: rgba(160, 32, 32, 0.8);color: var(--text-light);
+    padding: 30px 20px;display: flex;flex-direction: column;justify-content: center;
+    opacity: 0;transition: opacity 0.4s;pointer-events: none;
+}
+#role .card:hover .intro {opacity: 1;}
+#role .card .intro h3 {color:var(--opera-gold);font-size:24px;margin-bottom:15px;text-align:center;}
+#role .card .intro p {line-height:1.6;font-size:16px;text-align:center;}
+
+#face .card {overflow: hidden;}
+#face .card img {filter: brightness(1);transition: filter 0.4s;}
+#face .card:hover img {filter: brightness(1.2);}
+#face .card .intro {
+    position: absolute;top: 0;left: 0;width: 100%;height: 100%;
+    background: rgba(160, 32, 32, 0.8);color: var(--text-light);
+    padding: 30px 20px;display: flex;flex-direction: column;justify-content: center;
+    opacity: 0;transition: opacity 0.4s;pointer-events: none;
+}
+#face .card:hover .intro {opacity: 1;}
+#face .card .intro h3 {color:var(--opera-gold);font-size:24px;margin-bottom:15px;text-align:center;}
+#face .card .intro p {line-height:1.6;font-size:16px;text-align:center;}
+
+#star .card {overflow: hidden;}
+#star .card img {filter: brightness(1);transition: filter 0.4s;}
+#star .card:hover img {filter: brightness(1.2);}
+#star .card .intro {
+    position: absolute;top: 0;left: 0;width: 100%;height: 100%;
+    background: rgba(160, 32, 32, 0.8);color: var(--text-light);
+    padding: 30px 20px;display: flex;flex-direction: column;justify-content: center;
+    opacity: 0;transition: opacity 0.4s;pointer-events: none;
+}
+#star .card:hover .intro {opacity: 1;}
+#star .card .intro h3 {color:var(--opera-gold);font-size:24px;margin-bottom:15px;text-align:center;}
+#star .card .intro p {line-height:1.6;font-size:16px;text-align:center;}
+
+.book-section {
+    display: grid;grid-template-columns: 1fr 1fr;gap: 40px;align-items: start;
+}
+@media (max-width: 768px) {
+    .book-section {grid-template-columns: 1fr;}
+}
+.price-table {
+    background:#fff;border:1px solid #e0d8c0;border-radius:16px;
+    padding:30px;box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.price-table h3 {
+    color:var(--top-color);font-size:24px;margin-bottom:20px;text-align:center;
+}
+.price-table table {width:100%;border-collapse: collapse;}
+.price-table th, .price-table td {
+    padding:12px 15px;text-align:center;
+    border-bottom:1px solid #e0d8c0;
+}
+.price-table th {color:var(--top-color);font-size:16px;}
+.price-table td {color:var(--text-dark);font-size:15px;}
+.price-table tr:last-child td {border-bottom: none;}
+
+.book{
+    background:#fff;border:1px solid #e0d8c0;border-radius:16px;
+    padding:40px;box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.book h3 {
+    color:var(--top-color);font-size:24px;margin-bottom:20px;text-align:center;
+}
+.book input,.book select{
+    width:100%;padding:12px;margin:10px 0;
+    background:#faf6ed;border:1px solid var(--top-color);border-radius:6px;
+    color:var(--text-dark);
+}
+.book button{
+    width:100%;padding:14px;background:var(--top-color);
+    color:var(--text-light);border:none;border-radius:6px;margin-top:10px;cursor:pointer;
+    transition: .3s;
+}
+.book button:hover {
+    background: #8c1b1b;box-shadow: 0 0 15px rgba(160, 32, 32, 0.2);
+}
+
+#msg {
+    position: relative;
+}
+.danmu-container {
+    width: 100%;
+    height: 400px;
+    background: #fff;
+    border: 1px solid #e0d8c0;
+    border-radius: 16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 20px;
+}
+.danmu-item {
+    position: absolute;
+    white-space: nowrap;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(160, 32, 32, 0.8);
+    color: var(--text-light);
+    font-size: 16px;
+    opacity: 0;
+    animation: danmuMove linear infinite;
+}
+
+.danmu-item.color1 {background: rgba(160, 32, 32, 0.8);}
+.danmu-item.color2 {background: rgba(230, 184, 0, 0.8);}
+.danmu-item.color3 {background: rgba(10, 10, 10, 0.8);}
+.danmu-item.color4 {background: rgba(80, 120, 80, 0.8);}
+
+textarea{
+    width:100%;height:120px;padding:15px;background:#faf6ed;
+    color:var(--text-dark);border:1px solid var(--top-color);border-radius:8px;margin-top:20px
+}
+
+
+footer{
+    background:var(--top-color);text-align:center;padding:40px;
+    color:var(--text-light);
+}
+
+@media(max-width:768px){
+    .nav{display:none}
+    .danmu-container {
+        height: 300px;
+    }
+}
+
+
+@keyframes danmuMove {
+    0% {
+        transform: translateX(100%);
+        opacity: 1;
+    }
+    95% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="curtain left"></div>
+<div class="curtain right"></div>
+
+<nav>
+<div class="logo">京韵</div>
+<div class="nav">
+<a href="../../主页.html">返回主页</a>
+<a href="#home">首页</a>
+<a href="#play">剧目</a>
+<a href="#role">行当</a>
+<a href="#face">脸谱</a>
+<a href="#star">名角</a>
+<a href="#book">购票</a>
+<a href="#msg">留言</a>
+</div>
+</nav>
+
+<div class="slider" id="home">
+<div class="slide active" style="background-image:url(img/img/贵妃醉酒.jpg)">
+<div class="txt"><h2>贵妃醉酒</h2><p>梅派经典 · 雍容华贵</p></div>
+</div>
+<div class="slide" style="background-image:url(img/img/霸王别姬.jpg)">
+<div class="txt"><h2>霸王别姬</h2><p>千古绝唱 · 荡气回肠</p></div>
+</div>
+<div class="slide" style="background-image:url(img/img/四郎探母.jpg)">
+<div class="txt"><h2>四郎探母</h2><p>忠孝节义 · 感人至深</p></div>
+</div>
+<div class="slide" style="background-image:url(img/img/锁麟囊.jpg)">
+<div class="txt"><h2>锁麟囊</h2><p>程派名作 · 温婉大气</p></div>
+</div>
+<button class="btn" onclick="document.getElementById('play').scrollIntoView()">进入戏园</button>
+</div>
+
+<div class="section" id="play">
+<h2 class="title">经典剧目</h2>
+<div class="grid">
+<div class="card">
+<img src="img/img/贵妃醉酒.jpg">
+<div class="intro">
+    <h3>贵妃醉酒</h3>
+    <p>《贵妃醉酒》又名《百花亭》，是梅派经典代表剧目之一。讲述了唐玄宗与杨贵妃相约在百花亭饮酒赏花，玄宗却爽约赴西宫，杨贵妃独饮至大醉，满怀幽怨与愤懑的故事，展现了杨玉环从期盼到失望、再到醉后失态的复杂心境。</p>
+</div>
+<div class="info"><h3>贵妃醉酒</h3><p>杨玉环宫廷宴饮，怀春怨情</p></div>
+</div>
+<div class="card">
+<img src="img/img/霸王别姬.jpg">
+<div class="intro">
+    <h3>霸王别姬</h3>
+    <p>《霸王别姬》是京剧艺术大师梅兰芳的经典剧目，取材于楚汉相争的历史故事。楚霸王项羽被汉军围困垓下，兵少粮尽，夜闻四面楚歌，与爱妃虞姬饮酒诀别。虞姬为不拖累霸王，拔剑自刎，项羽率部突围至乌江，亦自刎身亡，演绎了一段悲壮的英雄美人绝唱。</p>
+</div>
+<div class="info"><h3>霸王别姬</h3><p>楚霸王项羽与虞姬生死离别</p></div>
+</div>
+<div class="card">
+<img src="img/img/空城计.jpg">
+<div class="intro">
+    <h3>空城计</h3>
+    <p>《空城计》是京剧“失空斩”中的核心折段，取材于《三国演义》。诸葛亮因错用马谡而失掉街亭，司马懿率十五万大军直逼西城。此时西城空虚，诸葛亮临危不乱，大开城门，自坐城头饮酒抚琴，司马懿疑有埋伏而退兵，展现了诸葛亮的超凡智慧与胆识。</p>
+</div>
+<div class="info"><h3>空城计</h3><p>诸葛亮抚琴退司马仲达</p></div>
+</div>
+</div>
+</div>
+
+<div class="section" id="role">
+<h2 class="title">京剧行当</h2>
+<div class="grid">
+<div class="card">
+<img src="img/img/生.jpg">
+<div class="intro">
+    <h3>生</h3>
+    <p>生行是京剧表演中男性正面角色的统称，根据年龄、身份、性格细分老生、小生、武生等。老生多饰中年以上男性，音色醇厚；小生为青年男性，唱腔华丽；武生擅长武打戏，侧重身段与武功。</p>
+</div>
+<div class="info"><h3>生</h3><p>男性正面角色</p></div>
+</div>
+<div class="card">
+<img src="img/img/旦.jpg">
+<div class="intro">
+    <h3>旦</h3>
+    <p>旦行是京剧女性角色的统称，含青衣、花旦、刀马旦、老旦等。青衣饰端庄中年女性，以唱功见长；花旦为活泼青年女性；刀马旦擅武打；老旦专演老年女性。</p>
+</div>
+<div class="info"><h3>旦</h3><p>女性角色统称</p></div>
+</div>
+<div class="card">
+<img src="img/img/净.jpg">
+<div class="intro">
+    <h3>净</h3>
+    <p>净行俗称花脸，以面部勾脸谱为特征，饰性格特异的男性角色。分铜锤花脸（唱功）、架子花脸（做功）、武花脸（武打），代表角色如包拯、曹操等。</p>
+</div>
+<div class="info"><h3>净</h3><p>花脸，性格鲜明</p></div>
+</div>
+<div class="card">
+<img src="img/img/丑.jpg">
+<div class="intro">
+    <h3>丑</h3>
+    <p>丑行俗称小花脸，饰滑稽幽默或阴险角色，面部勾“豆腐块”脸谱。分文丑（擅念白做功）、武丑（擅武打翻扑），是京剧中的喜剧担当。</p>
+</div>
+<div class="info"><h3>丑</h3><p>滑稽幽默角色</p></div>
+</div>
+</div>
+</div>
+
+<div class="section" id="face">
+<h2 class="title">京剧脸谱</h2>
+<div class="grid">
+<div class="card">
+<img src="img/img/红脸.jpg">
+<div class="intro">
+    <h3>红脸</h3>
+    <p>红脸是京剧脸谱中最具代表性的色彩之一，主色调为红色，象征忠义、耿直、英勇的性格特征。最典型的代表人物是关羽，其红脸形象成为忠勇的化身，此外姜维、赵匡胤等角色也常用红脸勾画。</p>
+</div>
+<div class="info"><h3>红脸</h3><p>忠义、耿直</p></div>
+</div>
+<div class="card">
+<img src="img/img/黑脸.jpg">
+<div class="intro">
+    <h3>黑脸</h3>
+    <p>黑脸在京剧脸谱中代表刚烈、勇猛、正直、无私的性格，以包拯、张飞、李逵为典型代表。包拯的黑脸象征铁面无私、刚正不阿；张飞、李逵的黑脸则凸显其性格粗犷、勇猛好斗的特质。</p>
+</div>
+<div class="info"><h3>黑脸</h3><p>刚烈、勇猛</p></div>
+</div>
+<div class="card">
+<img src="img/img/白脸.jpg">
+<div class="intro">
+    <h3>白脸</h3>
+    <p>白脸是京剧脸谱中反派角色的经典象征，主色调为白色，代表奸诈、多疑、阴险的性格。最具代表性的人物是曹操，其白脸形象成为“奸雄”的代名词，此外严嵩、秦桧等奸佞角色也均以白脸呈现。</p>
+</div>
+<div class="info"><h3>白脸</h3><p>奸诈、多疑</p></div>
+</div>
+</div>
+</div>
+
+<div class="section" id="star">
+<h2 class="title">京剧名家</h2>
+<div class="grid">
+<div class="card" onclick="window.location.href='梅兰芳.html'">
+<img src="img/img/梅兰芳.jpg">
+<div class="intro">
+    <h3>梅兰芳</h3>
+    <p>梅兰芳（1894-1961），京剧梅派艺术创始人，“四大名旦”之首，中国京剧史上里程碑式的人物。他融合青衣、花旦、刀马旦表演特色，创造出独具韵味的梅派唱腔与表演风格，代表剧目有《贵妃醉酒》《霸王别姬》等，是将京剧推向世界的第一人。</p>
+</div>
+<div class="info"><h3>梅兰芳</h3><p>梅派创始人，四大名旦</p></div>
+</div>
+
+<div class="card" onclick="window.location.href='程砚秋.html'">
+<img src="img/img/程砚秋.jpg">
+<div class="intro">
+    <h3>程砚秋</h3>
+    <p>程砚秋（1904-1958），京剧程派艺术创始人，“四大名旦”之一。其唱腔以低回婉转、幽咽哀怨为特色，注重声腔与情感的融合，创造出“程腔”独有的艺术魅力，代表剧目有《锁麟囊》《荒山泪》《春闺梦》等。</p>
+</div>
+<div class="info"><h3>程砚秋</h3><p>程派创始人，唱腔婉转</p></div>
+</div>
+
+<div class="card" onclick="window.location.href='尚小云.html'">
+<img src="img/img/尚小云.jpg">
+<div class="intro">
+    <h3>尚小云</h3>
+    <p>尚小云（1900-1976），京剧尚派艺术创始人，“四大名旦”之一。其表演风格刚劲挺拔、洒脱大方，唱腔高亢激越、铿锵有力，擅长演绎巾帼英雄类角色，代表剧目有《昭君出塞》《失子惊疯》《乾坤福寿镜》等。</p>
+</div>
+<div class="info"><h3>尚小云</h3><p>尚派，刚劲挺拔</p></div>
+</div>
+</div>
+</div>
+
+<div class="section" id="book">
+<h2 class="title">在线购票</h2>
+<div class="book-section">
+    <div class="price-table">
+        <h3>剧目价格表</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>剧目名称</th>
+                    <th>演出时间</th>
+                    <th>普通票</th>
+                    <th>贵宾票</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>贵妃醉酒</td>
+                    <td>5月20日 19:30</td>
+                    <td>¥280</td>
+                    <td>¥580</td>
+                </tr>
+                <tr>
+                    <td>霸王别姬</td>
+                    <td>5月20日 19:30</td>
+                    <td>¥320</td>
+                    <td>¥680</td>
+                </tr>
+                <tr>
+                    <td>空城计</td>
+                    <td>5月21日 19:30</td>
+                    <td>¥260</td>
+                    <td>¥520</td>
+                </tr>
+                <tr>
+                    <td>四郎探母</td>
+                    <td>5月22日 19:30</td>
+                    <td>¥290</td>
+                    <td>¥560</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="book">
+        <h3>立即购票</h3>
+        <select id="playSelect">
+            <option value="贵妃醉酒">贵妃醉酒</option>
+            <option value="霸王别姬">霸王别姬</option>
+            <option value="空城计">空城计</option>
+            <option value="四郎探母">四郎探母</option>
+        </select>
+        <select id="timeSelect">
+            <option value="5月20日 19:30">5月20日 19:30</option>
+            <option value="5月21日 19:30">5月21日 19:30</option>
+            <option value="5月22日 19:30">5月22日 19:30</option>
+        </select>
+        <select id="ticketType">
+            <option value="普通票">普通票</option>
+            <option value="贵宾票">贵宾票</option>
+        </select>
+        <input type="text" placeholder="姓名">
+        <input type="tel" placeholder="电话">
+        <button onclick="confirmOrder()">确认下单</button>
+    </div>
+</div>
+</div>
+
+<div class="section" id="msg">
+<h2 class="title">戏迷留言</h2>
+
+<div class="danmu-container" id="danmuContainer"></div>
+
+<textarea id="msgInput" placeholder="写下你的戏评..."></textarea>
+<button class="btn" style="position:static;transform:none;margin-top:20px" onclick="addDanmu()">提交</button>
+</div>
+
+<footer>©2026 中华文化数字博物馆 · 国粹传承</footer>
+
+<script>
+window.onload=()=>{
+    setTimeout(()=>document.body.classList.add('open'),600)
+    let s=document.querySelectorAll('.slide'),i=0
+    setInterval(()=>{
+        s.forEach(e=>e.classList.remove('active'))
+        s[i].classList.add('active')
+        i=(i+1)%s.length
+    },2000)
+    
+    initDanmu();
+}
+
+function initDanmu() {
+    const defaultComments = [
+        "国粹经典，百看不厌！——戏迷老张",
+        "网站太有京剧味儿了！——小旦角",
+        "梅派唱腔太有韵味了！——京剧爱好者",
+        "霸王别姬看一次哭一次！——戏迷小李",
+        "空城计的诸葛亮演得太传神了！——老戏骨",
+        "京剧的脸谱艺术太精美了！——美术老师",
+        "程派的唱腔如泣如诉，太动人了！——程派粉丝",
+        "尚小云的表演刚柔并济，太精彩了！——戏曲评论家"
+    ];
+    
+    defaultComments.forEach((comment, index) => {
+        setTimeout(() => {
+            createDanmu(comment);
+        }, index * 1000);
+    });
+    
+    setInterval(() => {
+        const randomComment = defaultComments[Math.floor(Math.random() * defaultComments.length)];
+        createDanmu(randomComment);
+    }, 3000);
+}
+
+function createDanmu(text) {
+    const container = document.getElementById('danmuContainer');
+    const containerHeight = container.clientHeight;
+    const containerWidth = container.clientWidth;
+    
+    const danmu = document.createElement('div');
+    danmu.className = `danmu-item color${Math.floor(Math.random() * 4) + 1}`;
+    danmu.textContent = text;
+    
+    const top = Math.random() * (containerHeight - 40);
+    danmu.style.top = `${top}px`;
+    
+    const duration = 8 + Math.random() * 7;
+    danmu.style.animationDuration = `${duration}s`;
+    
+    container.appendChild(danmu);
+    
+    setTimeout(() => {
+        danmu.remove();
+    }, duration * 1000);
+}
+
+function addDanmu() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    
+    if (text) {
+        createDanmu(text);
+        input.value = '';
+        alert('留言成功！您的评论已加入弹幕~');
+    } else {
+        alert('请输入留言内容！');
+    }
+}
+
+function confirmOrder() {
+    const play = document.getElementById('playSelect').value;
+    const time = document.getElementById('timeSelect').value;
+    const type = document.getElementById('ticketType').value;
+    
+    const priceMap = {
+        '贵妃醉酒': {'普通票': 280, '贵宾票': 580},
+        '霸王别姬': {'普通票': 320, '贵宾票': 680},
+        '空城计': {'普通票': 260, '贵宾票': 520},
+        '四郎探母': {'普通票': 290, '贵宾票': 560}
+    };
+    
+    const price = priceMap[play][type];
+    alert(`购票成功！
+剧目：${play}
+时间：${time}
+票型：${type}
+价格：¥${price}
+电子戏票已发送至您的手机，请注意查收！`);
+}
+</script>
+</body>
+</html>

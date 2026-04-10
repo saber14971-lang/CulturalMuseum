@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梅兰芳 - 京韵 · 国粹京剧艺术平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth}
+:root{
+    --top-color: #a02020;   
+    --middle-color: #f5f0e1; 
+    --opera-gold: #e6b800;   
+    --opera-black: #0a0a0a;   
+    --text-dark: #333;        
+    --text-light: #f9f6f0;    
+}
+
+body{
+    background: var(--middle-color); 
+    color: var(--text-dark); 
+}
+
+.curtain{
+    position:fixed;top:0;width:50%;height:100vh;
+    background:var(--top-color);z-index:9999;
+    transition:1.8s cubic-bezier(.25,.1,.25,1)
+}
+.curtain.left{left:0}
+.curtain.right{right:0}
+body.open .curtain.left{transform:translateX(-100%)}
+body.open .curtain.right{transform:translateX(100%)}
+
+nav{
+    position:fixed;top:0;width:100%;
+    background:rgba(160, 32, 32, 0.9); 
+    backdrop-filter:blur(10px);
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 30px;z-index:998
+}
+.logo{color:var(--opera-gold);font-size:24px;font-weight:bold}
+.nav a{color:var(--text-light);margin:0 16px;text-decoration:none;transition:.3s}
+.nav a:hover{color:var(--opera-gold)}
+
+.section{
+    max-width:1200px;margin:0 auto;padding:80px 20px;
+    background:var(--middle-color); 
+}
+.title{
+    text-align:center;color:var(--top-color);
+    font-size:36px;margin-bottom:50px;position:relative
+}
+.title::after{
+    content:"";width:80px;height:3px;background:var(--top-color);
+    position:absolute;bottom:-12px;left:50%;transform:translateX(-50%)
+}
+
+.star-detail {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #e0d8c0;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+@media (max-width: 768px) {
+    .star-detail {
+        grid-template-columns: 1fr;
+    }
+}
+.star-img {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.star-img img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: .4s;
+}
+.star-img:hover img {
+    filter: brightness(1.2);
+}
+.star-info h3 {
+    color: var(--top-color); 
+    font-size: 32px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--top-color); 
+    padding-bottom: 10px;
+}
+.star-info p {
+    line-height: 1.8;
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-indent: 2em;
+}
+.star-info .works {
+    margin-top: 30px;
+}
+.star-info .works h4 {
+    color: var(--top-color);
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+.star-info .works ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.star-info .works li {
+    background: rgba(160, 32, 32, 0.1);
+    color: var(--text-dark);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--top-color); 
+}
+
+
+.back-btn {
+    display: inline-block;
+    margin-top: 30px;
+    background: var(--top-color);
+    color: var(--text-light);
+    border: 2px solid var(--opera-gold);
+    padding: 12px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: .3s;
+}
+.back-btn:hover {
+    background: #8c1b1b;
+    box-shadow: 0 0 15px rgba(160, 32, 32, 0.2);
+}
+
+footer{
+    background:var(--top-color);text-align:center;padding:40px;
+    color:var(--text-light);
+    margin-top:80px
+}
+@media(max-width:768px){.nav{display:none}}
+</style>
+</head>
+<body>
+<div class="curtain left"></div>
+<div class="curtain right"></div>
+
+<nav>
+<div class="logo">京韵</div>
+<div class="nav">
+<a href="index.html#home">首页</a>
+<a href="index.html#play">剧目</a>
+<a href="index.html#role">行当</a>
+<a href="index.html#face">脸谱</a>
+<a href="index.html#star">名角</a>
+<a href="index.html#book">购票</a>
+<a href="index.html#msg">留言</a>
+</div>
+</nav>
+
+<div class="section">
+    <h2 class="title">京剧名家 · 梅兰芳</h2>
+    <div class="star-detail">
+        <div class="star-img">
+            <img src="img/img/梅兰芳.jpg" alt="梅兰芳">
+        </div>
+        <div class="star-info">
+            <h3>梅兰芳（1894-1961）</h3>
+            <p>梅兰芳，名澜，字畹华，祖籍江苏泰州，生于北京，京剧梅派艺术创始人，“四大名旦”之首，中国京剧史上里程碑式的人物。他出身梨园世家，8岁学戏，11岁登台，凭借过人的天赋和不懈的努力，终成一代宗师。</p>
+            <p>梅兰芳融合青衣、花旦、刀马旦的表演特色，突破传统旦角表演的局限，创造出独具韵味的梅派唱腔与表演风格。其唱腔圆润婉转、雍容华贵，表演雍容大方、形神兼备，塑造了众多经典的女性艺术形象。</p>
+            <p>作为将京剧推向世界的第一人，梅兰芳曾先后赴日本、美国、苏联等国演出，让京剧成为世界瞩目的东方艺术瑰宝。他的艺术成就不仅在于表演技巧的创新，更在于对京剧艺术的传承与推广，为中国戏曲的发展作出了不可磨灭的贡献。</p>
+            <div class="works">
+                <h4>代表剧目</h4>
+                <ul>
+                    <li>贵妃醉酒</li>
+                    <li>霸王别姬</li>
+                    <li>洛神</li>
+                    <li>天女散花</li>
+                    <li>宇宙锋</li>
+                    <li>生死恨</li>
+                </ul>
+            </div>
+            <a href="index.html" class="back-btn">返回名家列表</a>
+        </div>
+    </div>
+</div>
+
+<footer>©2025 京韵京剧艺术平台 · 国粹传承</footer>
+
+<script>
+window.onload=()=>{
+    setTimeout(()=>document.body.classList.add('open'),600)
+}
+</script>
+</body>
+</html>

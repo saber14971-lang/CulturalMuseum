@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中华民俗文化 - 传承千年文脉</title>
+    <!-- jQuery v1.12.4 -->
+    <script src="js/jquery.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <style>
+        /* 全局动画 */
+        .fade-in { opacity: 0; transform: translateY(30px); transition: all 0.8s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        /* 全局平滑滚动 */
+        html { scroll-behavior: smooth; }
+
+        /* 书籍翻页 —— 优化3D效果 */
+        .perspective-2000 {
+            perspective: 2000px; /* 保留透视效果 */
+            perspective-origin: center center;
+        }
+        .book-page { 
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-origin: left center; 
+            transition: all 0.8s cubic-bezier(0.645,0.045,0.355,1); 
+            backface-visibility: hidden; /* 隐藏背面，增强3D感 */
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); /* 基础阴影 */
+        }
+        /* 翻页动画：增加立体阴影和角度变化 */
+        .page-turn { 
+            transform: rotateY(-180deg); 
+            box-shadow: -5px 0 30px rgba(0,0,0,0.2); /* 翻页时的立体阴影 */
+            opacity: 0; /* 翻页后渐隐 */
+        }
+        /* 页面显示动画：淡入+轻微位移 */
+        .page-show {
+            animation: pageShow 0.8s ease forwards;
+        }
+        @keyframes pageShow {
+            0% { opacity: 0; transform: rotateY(-20deg) translateX(20px); }
+            100% { opacity: 1; transform: rotateY(0) translateX(0); }
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 9998;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #f5f0e1; width: 90%; max-width: 600px; border-radius: 16px;
+            padding: 30px; position: relative; box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute; top: 15px; right: 20px; font-size: 24px;
+            cursor: pointer; color: #2c1e11;
+        }
+        .modal-img {
+            width: 100%; height: 220px; object-fit: cover; border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 翻页按钮优化 */
+        .page-btn {
+            transition: all 0.3s ease;
+            transform: translateZ(0); /* 硬件加速 */
+        }
+        .page-btn:hover:not(:disabled) {
+            transform: scale(1.1) translateZ(0);
+            box-shadow: 0 4px 12px rgba(158, 43, 37, 0.3);
+        }
+        .page-btn:disabled {
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+
+<body class="bg-[#f5f0e1] text-[#2c1e11] min-h-screen">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed top-0 w-full bg-[#2c1e11]/90 text-[#f5f0e1] z-50 transition-all duration-300 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+            <div class="text-[clamp(1.2rem,3vw,2rem)] font-serif flex items-center">
+                <i class="fa fa-book mr-2 text-[#9e2b25]"></i>
+                <span>中华民俗</span>
+            </div>
+            <div class="hidden md:flex space-x-1 text-lg font-sans">
+				<a href="../主页.html" class="nav-link px-4 py-2 rounded-lg hover:bg-[#9e2b25] transition-all">回到主页</a>
+                <a href="#home" class="nav-link px-4 py-2 rounded-lg hover:bg-[#9e2b25] transition-all">首页</a>
+                <a href="#culture" class="nav-link px-4 py-2 rounded-lg hover:bg-[#9e2b25] transition-all">民俗概览</a>
+                <a href="#book" class="nav-link px-4 py-2 rounded-lg hover:bg-[#9e2b25] transition-all">民俗典籍</a>
+                <a href="#festivals" class="nav-link px-4 py-2 rounded-lg hover:bg-[#9e2b25] transition-all">传统节日</a>
+                <a href="#crafts" class="nav-link px-4 py-2 rounded-lg hover:bg-[#9e2b25] transition-all">传统工艺</a>
+                <a href="#etiquette" class="nav-link px-4 py-2 rounded-lg hover:bg-[#9e2b25] transition-all">民俗礼仪</a>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn"><i class="fa fa-bars"></i></button>
+        </div>
+        <div id="mobileMenu" class="hidden md:hidden bg-[#2c1e11]/95 w-full py-3 px-4 flex flex-col space-y-2 font-sans">
+            <a href="../主页.html" class="hover:bg-[#9e2b25] px-4 py-2 rounded-lg">回到主页</a>
+            <a href="#home" class="hover:bg-[#9e2b25] px-4 py-2 rounded-lg">首页</a>
+            <a href="#culture" class="hover:bg-[#9e2b25] px-4 py-2 rounded-lg">民俗概览</a>
+            <a href="#book" class="hover:bg-[#9e2b25] px-4 py-2 rounded-lg">民俗典籍</a>
+            <a href="#festivals" class="hover:bg-[#9e2b25] px-4 py-2 rounded-lg">传统节日</a>
+            <a href="#crafts" class="hover:bg-[#9e2b25] px-4 py-2 rounded-lg">传统工艺</a>
+            <a href="#etiquette" class="hover:bg-[#9e2b25] px-4 py-2 rounded-lg">民俗礼仪</a>
+        </div>
+    </nav>
+
+    <!-- ===================== 首页【可单独自定义背景图】 ===================== -->
+    <header id="home" class="pt-24 md:pt-32 pb-16 min-h-screen flex items-center relative overflow-hidden" 
+        style="background-image:url('img/民俗文化.png');background-size:cover;background-position:center;">
+        <div class="absolute inset-0 bg-[#f5f0e1]/75"></div>
+        <div class="container mx-auto px-4 z-10">
+            <div class="text-center max-w-4xl mx-auto">
+                <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-serif mb-6 leading-tight">
+                    传承千年民俗<br/>守护中华文脉
+                </h1>
+                <p class="text-[clamp(1rem,3vw,1.5rem)] font-sans text-[#2c1e11]/80 mb-10 max-w-2xl mx-auto">
+                    民俗是民族的根脉，是流淌在血脉中的文化基因，承载着华夏儿女千年的智慧、情感、信仰与传承
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#culture" class="bg-[#9e2b25] hover:bg-[#9e2b25]/80 text-[#f5f0e1] px-6 py-3 rounded-lg text-lg font-semibold transition-all transform hover:scale-105 shadow-lg">探索民俗文化</a>
+                    <a href="#book" class="bg-transparent border-2 border-[#2c1e11] hover:bg-[#2c1e11]/10 px-6 py-3 rounded-lg text-lg font-semibold transition-all transform hover:scale-105">翻阅民俗典籍</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 以下所有板块背景完全保持原样，绝不改动 -->
+    <!-- 民俗概览 -->
+    <section id="culture" class="py-20 bg-[#f5f0e1]/80">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-serif mb-4">民俗文化概览</h2>
+                <div class="w-24 h-1 bg-[#9e2b25] mx-auto"></div>
+                <p class="mt-4 text-lg font-sans max-w-3xl mx-auto">
+                    中华民俗文化博大精深，源远流长，涵盖传统节日、民间工艺、饮食文化、礼仪制度、戏曲艺术、民间信仰等诸多方面，是中华民族灿烂文化的重要组成部分。
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white/70 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all transform hover:-translate-y-2 fade-in">
+                    <div class="w-16 h-16 bg-[#9e2b25]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-calendar text-3xl text-[#9e2b25]"></i>
+                    </div>
+                    <h3 class="text-xl font-serif text-center mb-3">传统节日</h3>
+                    <p class="text-center font-sans">春节、清明、端午、中秋、元宵、重阳等传统节日，承载着中华民族的信仰、伦理、情感等文化记忆。</p>
+                </div>
+                <div class="bg-white/70 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all transform hover:-translate-y-2 fade-in">
+                    <div class="w-16 h-16 bg-[#8c6d31]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-paint-brush text-3xl text-[#8c6d31]"></i>
+                    </div>
+                    <h3 class="text-xl font-serif text-center mb-3">民间工艺</h3>
+                    <p class="text-center font-sans">剪纸、刺绣、陶艺、木雕、皮影、年画、扎染等民间工艺，凝聚着劳动人民的智慧，展现东方美学。</p>
+                </div>
+                <div class="bg-white/70 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all transform hover:-translate-y-2 fade-in">
+                    <div class="w-16 h-16 bg-[#3d5a47]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-cutlery text-3xl text-[#3d5a47]"></i>
+                    </div>
+                    <h3 class="text-xl font-serif text-center mb-3">饮食民俗</h3>
+                    <p class="text-center font-sans">舌尖上的民俗文化，地域特色美食、节气食俗、宴席礼仪、特色小吃，构成中华饮食文化瑰宝。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== 民俗典籍翻页 —— 扩充内容 ===================== -->
+    <section id="book" class="py-20 bg-[#2c1e11]/5 relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-serif mb-4">民俗典籍</h2>
+                <div class="w-24 h-1 bg-[#9e2b25] mx-auto"></div>
+                <p class="mt-4 text-lg font-sans max-w-3xl mx-auto">翻开历史的书卷，探寻中华民俗的千年传承，感受古老文化的独特魅力。</p>
+            </div>
+            <div class="max-w-4xl mx-auto h-[500px] relative perspective-2000">
+                <div id="bookCover" class="absolute inset-0 bg-cover bg-center rounded-lg shadow-2xl overflow-hidden book-page" style="background-image: url('img/民俗文化封面.png');">
+                    <div class="absolute inset-0 bg-[#2c1e11]/60 flex flex-col items-center justify-center text-[#f5f0e1]">
+                        <h3 class="text-4xl font-serif mb-4">中华民俗通览</h3>
+                        <p class="font-sans text-lg">点击下方按钮翻阅书页</p>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-[#f5f0e1] rounded-lg shadow-lg p-10 book-page hidden" id="page1">
+                    <div class="h-full flex flex-col justify-center">
+                        <h3 class="text-3xl font-serif text-[#9e2b25] mb-6 text-center">春节习俗</h3>
+                        <p class="font-sans text-lg leading-relaxed mb-4">春节是中华民族最隆重的传统佳节，起源于殷商时期年头岁尾的祭神祭祖活动，至今已有四千多年历史。春节又称“过年”，其核心文化内涵是辞旧迎新、阖家团圆、祈福纳祥。</p>
+                        <p class="font-sans text-lg leading-relaxed mb-4">主要习俗包括：贴春联（以喜庆文字描绘美好愿景）、守岁（熬夜迎接新年，象征驱邪避灾）、拜年（走亲访友互致祝福）、放鞭炮（辞旧迎新、驱邪避凶）、吃年夜饭（全家团聚共享美食）、发压岁钱（长辈给晚辈祈福避邪）、舞龙舞狮（祈求风调雨顺）、逛庙会（体验民俗文化）等，不同地域还有扫尘、祭灶、接财神等特色习俗。</p>
+                        <p class="font-sans text-lg leading-relaxed">春节的饮食也极具特色，北方吃饺子（象征“更岁交子”），南方吃年糕（寓意“年年高升”），各地还有鱼（年年有余）、汤圆（团团圆圆）等吉祥食物。</p>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-[#f5f0e1] rounded-lg shadow-lg p-10 book-page hidden" id="page2">
+                    <div class="h-full flex flex-col justify-center">
+                        <h3 class="text-3xl font-serif text-[#9e2b25] mb-6 text-center">端午风情</h3>
+                        <p class="font-sans text-lg leading-relaxed mb-4">端午节，又称端阳节、龙舟节、重五节，源自天象崇拜，由上古时代祭龙演变而来，是中国四大传统节日之一，2009年被列入世界非物质文化遗产名录。</p>
+                        <p class="font-sans text-lg leading-relaxed mb-4">核心习俗有赛龙舟（相传为打捞屈原遗体，现成为竞技体育项目）、吃粽子（用箬叶包裹糯米，内填馅料，纪念屈原）、挂艾草与菖蒲（驱邪避瘟、净化空气）、佩香囊（装雄黄、朱砂等，驱虫防疫）、饮雄黄酒（解毒驱虫）、拴五色线（祈福纳吉）、沐兰汤（以兰草汤沐浴，祛病强身）等。</p>
+                        <p class="font-sans text-lg leading-relaxed">端午节的文化内涵不仅是纪念屈原，还包含驱邪防疫、敬畏自然的传统智慧，不同地区还有祭屈原、祭伍子胥、挂钟馗像等特色习俗，南方部分地区还会举行端午祈福大典。</p>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-[#f5f0e1] rounded-lg shadow-lg p-10 book-page hidden" id="page3">
+                    <div class="h-full flex flex-col justify-center">
+                        <h3 class="text-3xl font-serif text-[#9e2b25] mb-6 text-center">中秋雅韵</h3>
+                        <p class="font-sans text-lg leading-relaxed mb-4">中秋节，又称祭月节、团圆节、八月节，源自天象崇拜，由上古时代秋夕祭月演变而来，其文化核心是“团圆”与“丰收”，是中华民族重要的情感寄托节日。</p>
+                        <p class="font-sans text-lg leading-relaxed mb-4">自古便有祭月（设香案摆月饼、瓜果，祭拜月神）、赏月（登高望月，寄情抒怀）、吃月饼（圆形月饼象征团圆）、赏桂花（品桂香、感秋意）、饮桂花酒（寓意吉祥）、观潮（钱塘观潮为中秋特色）、玩花灯（儿童提灯夜游）等民俗，流传至今，经久不息。</p>
+                        <p class="font-sans text-lg leading-relaxed">中秋月饼种类繁多，广式、苏式、京式、滇式等各具特色，馅料从传统的五仁、豆沙、莲蓉，到现代的蛋黄、流心、水果等，承载着“但愿人长久，千里共婵娟”的美好祈愿。中秋也是思乡之情最浓的节日，历代文人留下无数咏月名篇。</p>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-[#f5f0e1] rounded-lg shadow-lg p-10 book-page hidden" id="page4">
+                    <div class="h-full flex flex-col justify-center">
+                        <h3 class="text-3xl font-serif text-[#9e2b25] mb-6 text-center">元宵灯火</h3>
+                        <p class="font-sans text-lg leading-relaxed mb-4">元宵节，又称上元节、灯节，是春节后的第一个重要节日，时间为农历正月十五，标志着春节的正式结束。元宵节起源于汉代的太一神祭祀，唐宋时期达到鼎盛。</p>
+                        <p class="font-sans text-lg leading-relaxed mb-4">核心习俗有赏灯（张挂各式花灯，有宫灯、走马灯、荷花灯等）、猜灯谜（将谜语贴于灯上，猜中者有奖，增添趣味）、吃元宵/汤圆（北方称元宵，南方称汤圆，均取团圆之意）、舞龙舞狮（延续春节喜庆）、踩高跷、划旱船、扭秧歌等民间表演。</p>
+                        <p class="font-sans text-lg leading-relaxed">元宵节是古代最热闹的节日之一，有“上元之夜，金吾不禁”的传统，百姓可通宵赏灯游玩，也是古代少有的“全民狂欢”时刻，蕴含着对新年平安、团圆、光明的美好期盼。</p>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-[#f5f0e1] rounded-lg shadow-lg p-10 book-page hidden" id="page5">
+                    <div class="h-full flex flex-col justify-center">
+                        <h3 class="text-3xl font-serif text-[#9e2b25] mb-6 text-center">重阳敬老</h3>
+                        <p class="font-sans text-lg leading-relaxed mb-4">重阳节，又称重九节、敬老节，时间为农历九月初九，因“九九”谐音“久久”，有长久长寿之意，1989年被定为“老人节”，成为弘扬敬老爱老传统的重要节日。</p>
+                        <p class="font-sans text-lg leading-relaxed mb-4">核心习俗有登高（登高山、临高处，寓意步步高升、避灾祈福）、赏菊（重阳节正值菊花盛开，赏菊饮酒，陶冶情操）、插茱萸（茱萸有驱虫避邪之效，插于头或佩于身）、饮菊花酒（养生保健，延年益寿）、吃重阳糕（“糕”谐音“高”，取步步高升之意）。</p>
+                        <p class="font-sans text-lg leading-relaxed">重阳节的文化核心从最初的避灾祈福，逐渐演变为敬老孝亲，如今各地会举办敬老宴、慰问老人、开展老年文体活动等，传承“老吾老以及人之老”的中华传统美德。</p>
+                    </div>
+                </div>
+                <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-6">
+                    <!-- 增加page-btn类名，优化按钮样式 -->
+                    <button id="prevBtn" class="page-btn bg-[#2c1e11] text-[#f5f0e1] w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#9e2b25] transition-colors disabled:opacity-50" disabled><i class="fa fa-angle-left"></i></button>
+                    <button id="nextBtn" class="page-btn bg-[#2c1e11] text-[#f5f0e1] w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#9e2b25] transition-colors"><i class="fa fa-angle-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 传统节日（带弹窗，扩充内容） -->
+    <section id="festivals" class="py-20 bg-[#f5f0e1]/80">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-serif mb-4">传统节日</h2>
+                <div class="w-24 h-1 bg-[#9e2b25] mx-auto"></div>
+                <p class="mt-4 text-lg font-sans max-w-3xl mx-auto">岁时节庆，传承千年民俗风情；月圆花好，诉说中华儿女情怀。</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
+                <div class="festival-card cursor-pointer flex bg-white/70 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all fade-in">
+                    <img src="img/春节.jpg" class="w-1/3 object-cover">
+                    <div class="p-5 flex-1">
+                        <h3 class="text-2xl font-serif text-[#9e2b25]">春节</h3>
+                        <p class="font-sans mt-2">农历正月初一，辞旧迎新，阖家团圆。</p>
+                    </div>
+                </div>
+                <div class="festival-card cursor-pointer flex bg-white/70 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all fade-in">
+                    <img src="img/清明节.jpg" class="w-1/3 object-cover">
+                    <div class="p-5 flex-1">
+                        <h3 class="text-2xl font-serif text-[#9e2b25]">清明节</h3>
+                        <p class="font-sans mt-2">公历4月4-6日，扫墓祭祖，踏青郊游。</p>
+                    </div>
+                </div>
+                <div class="festival-card cursor-pointer flex bg-white/70 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all fade-in">
+                    <img src="img/端午节.png" class="w-1/3 object-cover">
+                    <div class="p-5 flex-1">
+                        <h3 class="text-2xl font-serif text-[#9e2b25]">端午节</h3>
+                        <p class="font-sans mt-2">农历五月初五，龙舟竞渡，食粽祈安。</p>
+                    </div>
+                </div>
+                <div class="festival-card cursor-pointer flex bg-white/70 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all fade-in">
+                    <img src="img/中秋节.jpg" class="w-1/3 object-cover">
+                    <div class="p-5 flex-1">
+                        <h3 class="text-2xl font-serif text-[#9e2b25]">中秋节</h3>
+                        <p class="font-sans mt-2">农历八月十五，赏月团圆，品饼寄思。</p>
+                    </div>
+                </div>
+                <div class="festival-card cursor-pointer flex bg-white/70 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all fade-in">
+                    <img src="img/元宵节.jpg" class="w-1/3 object-cover">
+                    <div class="p-5 flex-1">
+                        <h3 class="text-2xl font-serif text-[#9e2b25]">元宵节</h3>
+                        <p class="font-sans mt-2">农历正月十五，赏灯猜谜，共品元宵。</p>
+                    </div>
+                </div>
+                <div class="festival-card cursor-pointer flex bg-white/70 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all fade-in">
+                    <img src="img/重阳节.jpg" class="w-1/3 object-cover">
+                    <div class="p-5 flex-1">
+                        <h3 class="text-2xl font-serif text-[#9e2b25]">重阳节</h3>
+                        <p class="font-sans mt-2">农历九月初九，登高敬老，赏菊祈福。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 传统工艺（带弹窗） -->
+    <section id="crafts" class="py-20 bg-[#f5f0e1]/90 relative">
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-serif mb-4">传统工艺</h2>
+                <div class="w-24 h-1 bg-[#9e2b25] mx-auto"></div>
+                <p class="mt-4 text-lg font-sans max-w-3xl mx-auto">指尖匠心传千古，一针一线总关情，中华传统工艺彰显东方美学。</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="craft-card cursor-pointer bg-white/70 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:scale-105 fade-in">
+                    <img src="img/剪纸.jpg" class="w-full h-48 object-cover">
+                    <div class="p-4 text-center">
+                        <h3 class="text-xl font-serif mb-2">剪纸</h3>
+                        <p class="font-sans text-sm">镂空雕刻，红纸生花。</p>
+                    </div>
+                </div>
+                <div class="craft-card cursor-pointer bg-white/70 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:scale-105 fade-in">
+                    <img src="img/刺绣.jpg" class="w-full h-48 object-cover">
+                    <div class="p-4 text-center">
+                        <h3 class="text-xl font-serif mb-2">刺绣</h3>
+                        <p class="font-sans text-sm">丝线丹青，针绘万象。</p>
+                    </div>
+                </div>
+                <div class="craft-card cursor-pointer bg-white/70 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:scale-105 fade-in">
+                    <img src="img/陶艺.jpg" class="w-full h-48 object-cover">
+                    <div class="p-4 text-center">
+                        <h3 class="text-xl font-serif mb-2">陶艺</h3>
+                        <p class="font-sans text-sm">土与火的艺术，千年传承。</p>
+                    </div>
+                </div>
+                <div class="craft-card cursor-pointer bg-white/70 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:scale-105 fade-in">
+                    <img src="img/木雕.jpg" class="w-full h-48 object-cover">
+                    <div class="p-4 text-center">
+                        <h3 class="text-xl font-serif mb-2">木雕</h3>
+                        <p class="font-sans text-sm">匠心雕刻，木艺生辉。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 民俗礼仪 -->
+    <section id="etiquette" class="py-20 bg-[#f5f0e1]/90">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-serif mb-4">民俗礼仪</h2>
+                <div class="w-24 h-1 bg-[#9e2b25] mx-auto"></div>
+                <p class="mt-4 text-lg font-sans max-w-3xl mx-auto">不学礼，无以立。中华民俗礼仪贯穿于人生成长、社交往来、节日庆典之中。</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="bg-white/70 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all fade-in">
+                    <div class="text-center text-4xl text-[#9e2b25] mb-4"><i class="fa fa-heart"></i></div>
+                    <h3 class="text-xl font-serif text-center mb-3">人生礼仪</h3>
+                    <p class="font-sans text-center">诞生礼、成人礼、婚礼、寿礼等生命重要仪式。</p>
+                </div>
+                <div class="bg-white/70 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all fade-in">
+                    <div class="text-center text-4xl text-[#8c6d31] mb-4"><i class="fa fa-handshake-o"></i></div>
+                    <h3 class="text-xl font-serif text-center mb-3">社交礼仪</h3>
+                    <p class="font-sans text-center">见面礼、称谓礼、宴请礼、馈赠礼。</p>
+                </div>
+                <div class="bg-white/70 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all fade-in">
+                    <div class="text-center text-4xl text-[#3d5a47] mb-4"><i class="fa fa-star"></i></div>
+                    <h3 class="text-xl font-serif text-center mb-3">祭祀礼仪</h3>
+                    <p class="font-sans text-center">祭祖、祭神、祭孔，传承敬畏之心。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modal-img" class="modal-img">
+            <h2 id="modal-title" class="text-2xl font-serif text-[#9e2b25] mb-4"></h2>
+            <p id="modal-desc" class="text-lg leading-relaxed"></p>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-[#2c1e11] text-[#f5f0e1] py-10">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-2xl font-serif mb-4">中华民俗文化传承</h2>
+            <p class="font-sans mb-6">传承千年民俗，守护文化根脉，让华夏文明薪火相传</p>
+        </div>
+		<div class="container mx-auto py-5 text-center">
+			<p class="text-[#f5f0e1]/60">© 2026 中华文化数字博物馆 版权所有</p>
+		</div>
+    </footer>
+
+    <script>
+        $(document).ready(function(){
+            // 导航滚动效果
+            $(window).scroll(function(){
+                if($(this).scrollTop()>100){
+                    $('#navbar').addClass('py-2 shadow-xl').removeClass('py-3');
+                }else{
+                    $('#navbar').addClass('py-3').removeClass('py-2 shadow-xl');
+                }
+            });
+
+            // 移动端菜单
+            $('#menuBtn').click(function(){
+                $('#mobileMenu').toggleClass('hidden');
+                $(this).find('i').toggleClass('fa-bars fa-times');
+            });
+
+            // 导航平滑跳转
+            $('a.nav-link, #mobileMenu a').click(function(e){
+                var target = $(this).attr('href');
+                if (!target || target.indexOf('#') !== 0) {
+                    // 非锚点链接保持默认行为
+                    return;
+                }
+                e.preventDefault();
+                var top = $(target).offset().top - 70;
+                $('#mobileMenu').addClass('hidden');
+                $('#menuBtn i').removeClass('fa-times').addClass('fa-bars');
+                $('html,body').animate({scrollTop:top},800,'swing');
+            });
+
+            // 滚动渐入动画
+            var observer = new IntersectionObserver(es=>{
+                es.forEach(e=>e.isIntersecting && $(e.target).addClass('visible'));
+            },{threshold:0.1});
+            $('.fade-in').each(function(){observer.observe(this);});
+
+            // ===================== 翻页逻辑 —— 优化动画和交互 =====================
+            var pages = ['bookCover','page1','page2','page3','page4','page5'];
+            var curr = 0;
+            // 禁用快速连续点击
+            var isTurning = false;
+            
+            $('#nextBtn').click(function(){
+                if(curr<pages.length-1 && !isTurning){
+                    isTurning = true; // 锁定翻页状态
+                    // 旧页面翻页动画
+                    $('#'+pages[curr]).addClass('page-turn');
+                    
+                    // 延迟显示新页面，匹配动画时长
+                    setTimeout(() => {
+                        curr++;
+                        // 显示新页面并添加入场动画
+                        $('#'+pages[curr]).removeClass('hidden').addClass('page-show');
+                        // 重置按钮状态
+                        $('#prevBtn').prop('disabled',curr===0);
+                        $('#nextBtn').prop('disabled',curr===pages.length-1);
+                        isTurning = false; // 解锁翻页状态
+                    }, 400); // 匹配动画时长的一半，更自然
+                }
+            });
+            
+            $('#prevBtn').click(function(){
+                if(curr>0 && !isTurning){
+                    isTurning = true; // 锁定翻页状态
+                    // 隐藏当前页面
+                    $('#'+pages[curr]).addClass('hidden').removeClass('page-show');
+                    
+                    // 延迟恢复旧页面，匹配动画时长
+                    setTimeout(() => {
+                        curr--;
+                        // 恢复旧页面并移除翻页动画
+                        $('#'+pages[curr]).removeClass('page-turn');
+                        // 重置按钮状态
+                        $('#prevBtn').prop('disabled',curr===0);
+                        $('#nextBtn').prop('disabled',curr===pages.length-1);
+                        isTurning = false; // 解锁翻页状态
+                    }, 400);
+                }
+            });
+
+            // 弹窗数据（扩充节日内容）
+            var festivalData = [
+                {title:"春节",img:"img/春节大图.jpg",desc:"春节，即农历新年，是中华民族最隆重、最热闹、最具文化内涵的传统佳节。春节历史悠久，由上古时代岁首祈岁祭祀演变而来，承载着中国丰厚的文化底蕴与民族情感。春节的庆祝活动从腊月二十三小年开始，直至正月十五元宵节结束，历时近一个月，期间包含扫尘、祭灶、贴春联、守岁、拜年、逛庙会等诸多习俗，核心是辞旧迎新、阖家团圆，寄托着人们对新一年的美好期盼。"},
+                {title:"清明节",img:"img/清明节大图.jpg",desc:"清明节，兼具自然与人文两大内涵，既是自然节气点，也是传统节日。清明节是祭祖和扫墓的日子，是中华民族数千年传承的孝道文化与感恩文化的重要载体。除了祭祖扫墓，清明节还有踏青、插柳、放风筝、吃青团等习俗，体现了“生”与“死”的和谐统一，既是对先人的缅怀，也是对春天生机的迎接。"},
+                {title:"端午节",img:"img/端午节大图.png",desc:"端午节，又称端阳节、龙舟节，是中国首个入选世界非物质文化遗产的节日。相传是纪念爱国诗人屈原，主要习俗有赛龙舟、吃粽子、挂艾草、佩香囊等。端午节的起源最早与上古先民的龙图腾崇拜有关，赛龙舟是祭龙的重要形式，而艾草、菖蒲等物的使用，则体现了古人驱邪防疫、顺应自然的生存智慧，端午食粽也从最初的祭祀用品演变为特色美食。"},
+                {title:"中秋节",img:"img/中秋节大图.jpg",desc:"中秋节，以月之圆喻人之团圆，以饼之甜兆生活美满。自古便有赏月、吃月饼、赏桂花、饮桂花酒等习俗，是寄托思乡、思亲之情的重要传统节日。中秋赏月的习俗始于魏晋，盛于唐宋，历代文人墨客留下无数咏月佳作。月饼作为中秋的标志性食品，象征团圆和睦，不同地域的月饼各具风味，承载着“但愿人长久，千里共婵娟”的美好愿景。"},
+                {title:"元宵节",img:"img/元宵节大图.jpg",desc:"元宵节，又称上元节、灯节，是农历正月十五的重要节日，也是春节的收官之节。元宵节的核心习俗是赏灯、猜灯谜、吃元宵（汤圆），此外还有舞龙舞狮、踩高跷、划旱船等民间表演。古代元宵节有“金吾不禁夜”的传统，百姓可通宵游玩，是古代社会少有的全民狂欢时刻，蕴含着对光明、团圆、祥和的美好祈愿。"},
+                {title:"重阳节",img:"img/重阳节大图.jpg",desc:"重阳节，又称重九节、敬老节，定在农历九月初九，因“九九”谐音“久久”，有长寿之意。核心习俗有登高、赏菊、插茱萸、饮菊花酒、吃重阳糕等。1989年，重阳节被定为“老人节”，成为弘扬敬老爱老传统的重要载体。如今，重阳节不仅保留了登高赏秋的传统，更成为传承中华孝道、关爱老年人的重要节日。"}
+            ];
+            var craftData = [
+                {title:"剪纸",img:"img/剪纸大图.jpg",desc:"剪纸是一种用剪刀或刻刀在纸上剪刻花纹，用于装点生活或配合民俗活动的民间艺术。其传承的视觉形象和造型格式，蕴涵了丰富的文化历史信息。"},
+                {title:"刺绣",img:"img/刺绣大图.jpg",desc:"刺绣是针线在织物上绣制的各种装饰图案的总称，是中国民间传统手工艺之一，在中国至少有两三千年历史，主要有苏绣、湘绣、粤绣、蜀绣四大名绣。"},
+                {title:"陶艺",img:"img/陶艺大图.jpg",desc:"陶艺，是中国传统古老文化与现代艺术结合的艺术形式。从历史长河来看，陶瓷艺术与人类生活、民俗信仰、审美情趣紧密相连，是中华文明的重要符号。"},
+                {title:"木雕",img:"img/木雕大图.jpg",desc:"木雕是雕塑的一种，在中国被称为“民间工艺”。一般选用质地细密坚韧，不易变形的木材，经过精细雕琢而成，广泛用于建筑、家具、装饰等领域。"}
+            ];
+
+            // 弹窗控制
+            function showModal(img,title,desc){
+                $('#modal-img').attr('src',img);
+                $('#modal-title').text(title);
+                $('#modal-desc').text(desc);
+                $('#modal').fadeIn(300).css('display','flex');
+            }
+            $('.festival-card').click(function(){
+                var i = $(this).index('.festival-card');
+                showModal(festivalData[i].img,festivalData[i].title,festivalData[i].desc);
+            });
+            $('.craft-card').click(function(){
+                var i = $(this).index('.craft-card');
+                showModal(craftData[i].img,craftData[i].title,craftData[i].desc);
+            });
+            $('.modal-close').click(function(){$('#modal').fadeOut(300);});
+            $('#modal').click(function(e){
+                if($(e.target).is('#modal')){$('#modal').fadeOut(300);}
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>茶诗赏读 - 翻页版</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "楷体", "微软雅黑", sans-serif;
+        }
+
+        body {
+            background-color: #f5f0e8;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-8-30c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm18-15c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm18-15c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23c8b69c' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 诗词容器 */
+        .poetry-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 40px 60px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 诗词内容 */
+        .poetry-content {
+            transition: all 0.5s ease;
+            display: none;
+        }
+
+        .poetry-content.active {
+            display: block;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .poetry-title {
+            font-size: 2.2rem;
+            color: #8b5a2b;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .poetry-author {
+            font-size: 1.2rem;
+            color: #a67c52;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .poetry-text {
+            font-size: 1.5rem;
+            line-height: 2;
+            color: #5c4033;
+            white-space: pre-line;
+        }
+
+        /* 翻页按钮 */
+        .page-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255,255,255,0.8);
+            border: 1px solid #d9c8b4;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #8b5a2b;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .page-btn:hover {
+            background-color: #8b5a2b;
+            color: #fff;
+            border-color: #8b5a2b;
+        }
+
+        .prev-btn {
+            left: 20px;
+        }
+
+        .next-btn {
+            right: 20px;
+        }
+
+        /* 页码指示 */
+        .page-indicator {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .page-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #d9c8b4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-dot.active {
+            background-color: #8b5a2b;
+            width: 25px;
+            border-radius: 5px;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .poetry-container {
+                padding: 20px 30px;
+            }
+            .poetry-title {
+                font-size: 1.8rem;
+            }
+            .poetry-text {
+                font-size: 1.2rem;
+            }
+            .page-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="poetry-container">
+        <!-- 诗词内容区域 -->
+        <div class="poetry-content active">
+            <h2 class="poetry-title">饮茶歌诮崔石使君</h2>
+            <p class="poetry-author">唐·皎然</p>
+            <p class="poetry-text">越人遗我剡溪茗，采得金芽爨金鼎。
+素瓷雪色缥沫香，何似诸仙琼蕊浆。
+一饮涤昏寐，情来朗爽满天地。
+再饮清我神，忽如飞雨洒轻尘。
+三饮便得道，何须苦心破烦恼。
+此物清高世莫知，世人饮酒多自欺。
+愁看毕卓瓮间夜，笑向陶潜篱下时。
+崔侯啜之意不已，狂歌一曲惊人耳。
+孰知茶道全尔真，唯有丹丘得如此。</p>
+        </div>
+
+        <div class="poetry-content">
+            <h2 class="poetry-title">品令·茶词</h2>
+            <p class="poetry-author">宋·黄庭坚</p>
+            <p class="poetry-text">凤舞团团饼。恨分破、教孤令。
+金渠体净，只轮慢碾，玉尘光莹。
+汤响松风，早减了、二分酒病。
+味浓香永。醉乡路、成佳境。
+恰如灯下，故人万里，归来对影。
+口不能言，心下快活自省。</p>
+        </div>
+
+        <div class="poetry-content">
+            <h2 class="poetry-title">山泉煎茶有怀</h2>
+            <p class="poetry-author">唐·白居易</p>
+            <p class="poetry-text">坐酌泠泠水，看煎瑟瑟尘。
+无由持一碗，寄与爱茶人。</p>
+        </div>
+
+        <div class="poetry-content">
+            <h2 class="poetry-title">浣溪沙·茶词</h2>
+            <p class="poetry-author">宋·苏轼</p>
+            <p class="poetry-text">蔌蔌衣巾落枣花，村南村北响缲车，牛衣古柳卖黄瓜。
+酒困路长惟欲睡，日高人渴漫思茶，敲门试问野人家。</p>
+        </div>
+
+        <!-- 翻页按钮 -->
+        <div class="page-btn prev-btn">&lt;</div>
+        <div class="page-btn next-btn">&gt;</div>
+    </div>
+
+    <!-- 页码指示 -->
+    <div class="page-indicator">
+        <div class="page-dot active" data-index="0"></div>
+        <div class="page-dot" data-index="1"></div>
+        <div class="page-dot" data-index="2"></div>
+        <div class="page-dot" data-index="3"></div>
+    </div>
+
+    <script>
+        // 获取元素
+        const poetryContents = document.querySelectorAll('.poetry-content');
+        const pageDots = document.querySelectorAll('.page-dot');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        let currentIndex = 0; // 当前页码
+
+        // 切换诗词函数
+        function switchPoetry(index) {
+            // 隐藏所有诗词
+            poetryContents.forEach(item => item.classList.remove('active'));
+            // 移除所有页码激活状态
+            pageDots.forEach(dot => dot.classList.remove('active'));
+            
+            // 边界处理
+            if (index < 0) {
+                currentIndex = poetryContents.length - 1;
+            } else if (index >= poetryContents.length) {
+                currentIndex = 0;
+            } else {
+                currentIndex = index;
+            }
+
+            // 显示当前诗词
+            poetryContents[currentIndex].classList.add('active');
+            // 激活当前页码
+            pageDots[currentIndex].classList.add('active');
+        }
+
+        // 下一页
+        nextBtn.addEventListener('click', () => {
+            switchPoetry(currentIndex + 1);
+        });
+
+        // 上一页
+        prevBtn.addEventListener('click', () => {
+            switchPoetry(currentIndex - 1);
+        });
+
+        // 点击页码切换
+        pageDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                switchPoetry(index);
+            });
+        });
+
+        // 键盘左右键翻页
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                switchPoetry(currentIndex - 1);
+            } else if (e.key === 'ArrowRight') {
+                switchPoetry(currentIndex + 1);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清茗雅韵 · 中国茶文化</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "SimSun", sans-serif;
+        }
+
+        /* 基础配色：清新+历史感 */
+        :root {
+            --tea-green: #a8c098;
+            --tea-brown: #8b6f47;
+            --tea-cream: #f8f5e6;
+            --tea-dark: #3a352e;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--tea-cream);
+            color: var(--tea-dark);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* 动画：渐入 + 上滑 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
+        }
+
+        .navbar.scrolled {
+            padding: 10px 5%;
+            background: rgba(255,255,255,1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--tea-brown);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: logoFade 1.2s ease forwards;
+        }
+
+        @keyframes logoFade {
+            from { opacity:0; transform: translateX(-20px); }
+            to { opacity:1; transform: translateX(0); }
+        }
+
+        .logo i {
+            color: var(--tea-green);
+            animation: rotateIcon 3s linear infinite;
+        }
+
+        @keyframes rotateIcon {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--tea-dark);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content:'';
+            position:absolute;
+            bottom:-5px;
+            left:0;
+            width:0;
+            height:2px;
+            background:var(--tea-green);
+            transition:all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--tea-green);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a:hover::after {
+            width:100%;
+        }
+
+        /* 横幅区域 */
+        .banner {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), 
+                        url('img/茶文化大屏首页.png') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .banner h1 {
+            font-size: 52px;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: bannerText 1s ease 0.3s forwards;
+            opacity:0;
+        }
+
+        .banner p {
+            font-size: 20px;
+            max-width: 700px;
+            margin-bottom: 30px;
+            animation: bannerText 1s ease 0.6s forwards;
+            opacity:0;
+        }
+
+        .btn {
+            padding: 12px 35px;
+            background: var(--tea-green);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            animation: bannerText 1s ease 0.9s forwards;
+            opacity:0;
+        }
+
+        @keyframes bannerText {
+            to { opacity:1; transform: translateY(0); }
+            from { opacity:0; transform: translateY(30px); }
+        }
+
+        .btn:hover {
+            background: var(--tea-brown);
+            transform: scale(1.08);
+            box-shadow:0 5px 15px rgba(168,192,152,0.4);
+        }
+
+        /* 通用区块样式 */
+        .section {
+            padding: 80px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--tea-brown);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: "";
+            width: 80px;
+            height: 3px;
+            background: var(--tea-green);
+            display: block;
+            margin: 15px auto;
+            transition:all 0.6s ease;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            letter-spacing: 2px;
+        }
+
+        /* 卡片布局 */
+        .tea-types, .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .tea-card, .tool-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tea-card:hover, .tool-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .tea-img, .tool-img {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            transition:all 0.5s ease;
+        }
+
+        .tea-card:hover .tea-img, .tool-card:hover .tool-img {
+            transform: scale(1.1);
+        }
+
+        .tea-info, .tool-info {
+            padding: 25px;
+        }
+
+        .tea-info h3, .tool-info h3 {
+            color: var(--tea-brown);
+            margin-bottom: 10px;
+            font-size: 22px;
+            transition:all 0.3s ease;
+        }
+
+        .tea-card:hover h3, .tool-card:hover h3 {
+            color:var(--tea-green);
+        }
+
+        /* 茶道文化 */
+        .culture {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            align-items: center;
+            transition:all 0.6s ease;
+        }
+
+        .culture:hover {
+            transform: translateY(-5px);
+            box-shadow:0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .culture-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .culture-img {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .culture-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition:all 0.6s ease;
+        }
+
+        .culture-img:hover img {
+            transform: scale(1.08);
+        }
+
+        /* 品茶工具 */
+        .tools-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 50px;
+        }
+
+        /* 茶艺视频 */
+        .video-section {
+            background: var(--tea-dark);
+            color: var(--tea-cream);
+            padding: 80px 5%;
+            text-align: center;
+        }
+
+        .video-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .video-container video{
+            width: 100%;
+            height: 450px;
+            border-radius: 15px;
+            border: none;
+            transition:all 0.5s ease;
+            box-shadow:0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .video-container video:hover {
+            transform: scale(1.02);
+            box-shadow:0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        /* 茶诗区域 */
+        .poetry {
+            background: var(--tea-cream);
+            color: var(--tea-dark);
+            padding: 60px 5%;
+            text-align: center;
+        }
+
+        .poetry-box {
+            max-width: 900px;
+            margin: 0 auto;
+            font-size: 18px;
+            line-height: 2.5;
+        }
+
+        .poetry-box p {
+            opacity:0;
+        }
+
+        /* ========== 修复：弹窗完全居中 + 合理大小 ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 750px;
+            max-height: 85vh;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-img {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+        }
+
+        .modal-text {
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .modal-text h3 {
+            color: var(--tea-brown);
+            font-size: 26px;
+            margin-bottom: 15px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            color: white;
+            background: rgba(0,0,0,0.4);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition:all 0.3s ease;
+        }
+
+        .close:hover {
+            background:rgba(0,0,0,0.7);
+            transform:rotate(90deg);
+        }
+
+        /* 页脚 */
+        .footer {
+            background: var(--tea-brown);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from{opacity:0; transform:translateY(30px);}
+            to{opacity:1; transform:translateY(0);}
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 15px;
+            }
+            .banner h1 {
+                font-size: 36px;
+            }
+            .culture, .tools-section {
+                padding: 30px 20px;
+            }
+            .modal-img {
+                height: 220px;
+            }
+            .modal-text {
+               padding: 20px;
+            }
+            .video-container iframe {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-leaf"></i>
+            清茗雅韵
+        </div>
+        <div class="nav-links">
+			<a href="../主页.html">返回主页</a>
+            <a href="#home">首页</a>
+            <a href="#types">茶类</a>
+            <a href="#tools">茶具</a>
+            <a href="#video">茶艺</a>
+            <a href="#culture">茶道</a>
+            <a href="#poetry">茶诗</a>
+        </div>
+    </nav>
+
+    <!-- 横幅 -->
+    <section class="banner" id="home">
+        <h1>一叶清茶 · 千年传承</h1>
+        <p>茶，始于神农，闻于鲁周公，兴于唐，盛于宋，绵延千年，成为东方文明的温润底色</p>
+        <a href="#types" class="btn">品茗寻韵</a>
+    </section>
+
+    <!-- 六大茶类 -->
+    <section class="section" id="types">
+        <div class="section-title fade-in">
+            <h2>中国六大茶类</h2>
+        </div>
+        <div class="tea-types">
+            <div class="tea-card fade-in" data-title="绿茶" data-img="img/绿茶.jpg" data-desc="不发酵茶，清汤绿叶，口感鲜爽。绿茶是中国产量最多的茶类，经杀青、揉捻、干燥制成，最大限度保留茶叶天然物质，具有提神清心、清热解暑、消食化痰等功效。代表茶：西湖龙井、洞庭碧螺春、黄山毛峰、信阳毛尖。">
+                <div class="tea-img" style="background-image: url('img/绿茶.jpg');"></div>
+                <div class="tea-info">
+                    <h3>绿茶 - 清新淡雅</h3>
+                    <p>不发酵茶，清汤绿叶，鲜爽回甘</p>
+                </div>
+            </div>
+
+            <div class="tea-card fade-in" data-title="红茶" data-img="img/红茶.jpg" data-desc="全发酵茶，红汤红叶，温润养胃。红茶经萎凋、揉捻、发酵、干燥制成，茶性温和，适合秋冬饮用。香气甜润，滋味醇厚。代表茶：祁门红茶、正山小种、金骏眉、滇红。">
+                <div class="tea-img" style="background-image: url('img/红茶.jpg');"></div>
+                <div class="tea-info">
+                    <h3>红茶 - 温润醇厚</h3>
+                    <p>全发酵茶，红汤红叶，温和养胃</p>
+                </div>
+            </div>
+
+            <div class="tea-card fade-in" data-title="乌龙茶" data-img="img/乌龙茶.jpg" data-desc="半发酵茶，香气馥郁，七泡有余香。乌龙茶介于红绿之间，兼具绿茶清香与红茶醇厚，是功夫茶首选。代表茶：铁观音、大红袍、凤凰单丛、冻顶乌龙。">
+                <div class="tea-img" style="background-image: url('img/乌龙茶.jpg');"></div>
+                <div class="tea-info">
+                    <h3>乌龙茶 - 香气馥郁</h3>
+                    <p>半发酵茶，香气高长，韵味独特</p>
+                </div>
+            </div>
+
+            <div class="tea-card fade-in" data-title="白茶" data-img="img/白茶.jpg" data-desc="微发酵茶，不炒不揉，自然天成。白茶工艺最简单，保留最原始营养，一年茶、三年药、七年宝。茶性清凉，降火消炎。代表茶：白毫银针、白牡丹、寿眉。">
+                <div class="tea-img" style="background-image: url('img/白茶.jpg');"></div>
+                <div class="tea-info">
+                    <h3>白茶 - 自然本味</h3>
+                    <p>微发酵茶，不炒不揉，清淡甘甜</p>
+                </div>
+            </div>
+
+            <div class="tea-card fade-in" data-title="黄茶" data-img="img/黄茶.jpg" data-desc="轻发酵茶，黄叶黄汤，醇和回甘。黄茶在绿茶基础上增加闷黄工艺，口感更柔和，茶性温和。代表茶：君山银针、霍山黄芽、蒙顶黄芽。">
+                <div class="tea-img" style="background-image: url('img/黄茶.jpg');"></div>
+                <div class="tea-info">
+                    <h3>黄茶 - 黄叶黄汤</h3>
+                    <p>轻发酵茶，黄叶黄汤，醇和温润</p>
+                </div>
+            </div>
+
+            <div class="tea-card fade-in" data-title="黑茶" data-img="img/黑茶.jpg" data-desc="后发酵茶，越陈越香，厚重绵滑。黑茶经渥堆发酵，茶性温和，解油腻，是边疆民族生活必需品。代表茶：普洱熟茶、安化黑茶、六堡茶。">
+                <div class="tea-img" style="background-image: url('img/黑茶.jpg');"></div>
+                <div class="tea-info">
+                    <h3>黑茶 - 厚重陈香</h3>
+                    <p>后发酵茶，越陈越香，温润解腻</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 品茶工具板块 -->
+    <section class="section" id="tools">
+        <div class="section-title fade-in">
+            <h2>品茶工具 · 器以载道</h2>
+        </div>
+        <div class="tools-section fade-in">
+            <div class="tools-grid">
+                <div class="tool-card fade-in" data-title="紫砂壶" data-img="img/紫砂壶.jpg" data-desc="紫砂茶具始于北宋，盛于明清，以宜兴紫砂最知名。双气孔结构，透气性极佳，能吸收茶汁，经久耐用，越用越润。最适合冲泡乌龙茶、普洱茶、红茶。">
+                    <div class="tool-img" style="background-image: url('img/紫砂壶.jpg');"></div>
+                    <div class="tool-info">
+                        <h3>紫砂壶</h3>
+                        <p>泡茶首选，温润养茶</p>
+                    </div>
+                </div>
+
+                <div class="tool-card fade-in" data-title="盖碗" data-img="img/三才盖碗.jpg" data-desc="盖碗又称三才碗，盖为天、托为地、碗为人，暗含天地人和之意。瓷质盖碗不吸味，能真实呈现茶叶香气，适合冲泡绿茶、黄茶、白茶、红茶。">
+                    <div class="tool-img" style="background-image: url('img/三才盖碗.jpg');"></div>
+                    <div class="tool-info">
+                        <h3>三才盖碗</h3>
+                        <p>天地人和，百搭茶具</p>
+                    </div>
+                </div>
+
+                <div class="tool-card fade-in" data-title="品茗杯" data-img="img/品茗杯.jpg" data-desc="品茗杯用于品茶，讲究小、浅、薄、白。小则一啜而尽，浅则水不留底，薄则利于闻香，白则能衬汤色。">
+                    <div class="tool-img" style="background-image: url('img/品茗杯.jpg');"></div>
+                    <div class="tool-info">
+                        <h3>品茗杯</h3>
+                        <p>细品茶香，观色闻香</p>
+                    </div>
+                </div>
+
+                <div class="tool-card fade-in" data-title="茶盘" data-img="img/竹制茶盘.jpg" data-desc="茶盘用于承托茶具、接废水，材质有竹、木、石、瓷等。竹制茶盘清雅自然，最具中式韵味，是茶室常用款。">
+                    <div class="tool-img" style="background-image: url('img/竹制茶盘.jpg');"></div>
+                    <div class="tool-info">
+                        <h3>竹制茶盘</h3>
+                        <p>清雅简约，承托茶具</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 茶艺视频板块 -->
+    <section class="video-section" id="video">
+        <div class="section-title fade-in" style="color:var(--tea-cream)">
+            <h2>茶艺表演 · 行云流水</h2>
+        </div>
+        <div class="video-container fade-in">
+            <video controls>
+				<source src="video/茶艺.mp4" type="video/mp4"/>
+			</video>
+        </div>
+    </section>
+
+    <!-- 茶道文化 -->
+    <section class="section" id="culture">
+        <div class="section-title fade-in">
+            <h2>千年茶道 · 礼承华夏</h2>
+        </div>
+        <div class="culture fade-in">
+            <div class="culture-text">
+                <h3>茶与东方文明</h3>
+                <br>
+                <p>中国是茶的故乡，茶文化兴于唐而盛于宋，历经千年沉淀，融合了儒、释、道三家思想精髓。</p>
+                <br>
+                <p>茶道并非单纯的饮茶技艺，而是以茶为媒，修身养性、品味人生的生活艺术。和、静、怡、真，是中国茶道的核心灵魂。</p>
+                <br>
+                <p>从宫廷贡茶到市井茶饮，从茶马古道到丝路茶香，茶早已融入中国人的血脉，成为连接历史与当下的文化纽带。</p>
+            </div>
+            <div class="culture-img">
+                <img src="img/茶道.png" alt="茶道文化">
+            </div>
+        </div>
+    </section>
+
+    <!-- 茶诗 -->
+    <section class="poetry" id="poetry">
+        <div class="section-title fade-in">
+            <h2>茶诗雅集</h2>
+        </div>
+        <div class="poetry-box fade-in">
+            <iframe width="800" height="700" src="茶诗.html" style="border: none;"></iframe>
+        </div>
+    </section>
+
+    <!-- 弹窗 -->
+    <div class="modal" id="modal">
+        <span class="close" id="closeBtn">&times;</span>
+        <div class="modal-content">
+            <img id="modalImg" class="modal-img">
+            <div class="modal-text">
+                <h3 id="modalTitle"></h3>
+                <p id="modalDesc"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer top-20 py-20">
+        <h3>清茗雅韵 · 中国茶文化</h3>
+        <p>传承千年茶韵，弘扬东方美学</p>
+        <br>
+        <p>&copy; 2026 中华文化数字博物馆</p>
+    </footer>
+
+    <script>
+        $(document).ready(function(){
+            // 滚动监听：导航栏样式
+            $(window).scroll(function(){
+                if($(this).scrollTop() > 50) {
+                    $('.navbar').addClass('scrolled');
+                } else {
+                    $('.navbar').removeClass('scrolled');
+                }
+            });
+
+            // 平滑滚动
+            $('a[href^="#"]').click(function(e){
+                e.preventDefault();
+                var target = $(this).attr('href');
+                $('html, body').animate({
+                    scrollTop: $(target).offset().top
+                }, 800);
+            });
+
+            // 滚动渐入动画
+            $(window).scroll(function(){
+                $('.fade-in').each(function(){
+                    var elemTop = $(this).offset().top;
+                    var windowBottom = $(window).scrollTop() + $(window).height();
+                    
+                    if(windowBottom > elemTop + 100) {
+                        $(this).addClass('show');
+                    }
+                });
+            });
+
+            // 打开弹窗 + 动画
+            $('.tea-card, .tool-card').click(function(){
+                var title = $(this).data('title');
+                var img = $(this).data('img');
+                var desc = $(this).data('desc');
+                
+                $('#modalTitle').text(title);
+                $('#modalImg').attr('src', img);
+                $('#modalDesc').text(desc);
+                
+                $('#modal').css('display','flex').addClass('show');
+                $('body').css('overflow','hidden');
+            });
+
+            // 关闭弹窗
+            $('#closeBtn').click(function(){
+                $('#modal').fadeOut(300).removeClass('show');
+                $('body').css('overflow','auto');
+            });
+
+            // 点击空白关闭
+            $(window).click(function(e){
+                if($(e.target).is('#modal')){
+                    $('#modal').fadeOut(300).removeClass('show');
+                    $('body').css('overflow','auto');
+                }
+            });
+
+            // 茶诗打字动画
+            setTimeout(function(){
+                let delay = 0;
+                $('.poetry-box p').each(function(){
+                    $(this).delay(delay).animate({opacity:1},800);
+                    delay+=400;
+                });
+            },1000);
+
+            // 初始触发一次滚动动画
+            $(window).trigger('scroll');
+        });
+    </script>
+</body>
+</html>

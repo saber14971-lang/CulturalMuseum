@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中华文化知识问答</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B4513',
+                        secondary: '#3A5F42',
+                        light: '#F8F5F0',
+                        dark: '#2C2416'
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all hover:bg-primary/90 active:scale-95;
+            }
+            .option-btn {
+                @apply w-full text-left p-3 rounded-lg border-2 border-gray-200 mb-2 transition-all hover:border-primary/50 hover:bg-primary/5;
+            }
+            .option-correct {
+                @apply border-secondary bg-secondary/10 text-secondary font-medium;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light text-dark min-h-screen flex flex-col" >
+    <!-- 头部 -->
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-center text-shadow">
+                <i class="fa fa-book mr-2"></i>中华文化知识问答
+            </h1>
+            <p class="text-center mt-2 opacity-90">传承中华文脉，探索文化魅力</p>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl flex-1">
+        <!-- 分数面板 -->
+        <div class="flex justify-between items-center mb-6 p-4 bg-white rounded-lg shadow">
+			<span style="color: navajowhite;font-size: 20px;"><a href="../主页.html">返回主页</a></span>
+            <div>
+                <span class="text-gray-600">当前题库：</span>
+                <span id="category-name" class="font-semibold text-primary">请选择题库</span>
+            </div>
+            <div class="text-lg font-bold text-secondary">
+                <i class="fa fa-star text-yellow-500 mr-1"></i>
+                得分：<span id="score">0</span>
+            </div>
+        </div>
+
+        <!-- 题库选择区域 -->
+        <div id="category-select" class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-center">请选择答题类别</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- 茶文化 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover">
+                    <img src="img/茶.jpg" alt="茶文化" class="w-full h-44 object-cover">
+                    <button onclick="startQuiz('tea')" class="w-full btn-primary rounded-t-none">
+                        <i class="fa fa-leaf mr-2"></i>茶文化
+                    </button>
+                </div>
+
+                <!-- 古建筑文化 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover">
+                    <img src="img/徽派民居.jpg" alt="古建筑文化" class="w-full h-44 object-cover">
+                    <button onclick="startQuiz('architecture')" class="w-full btn-primary rounded-t-none">
+                        <i class="fa fa-building mr-2"></i>古建筑文化
+                    </button>
+                </div>
+
+                <!-- 民俗传统文化 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover">
+                    <img src="img/中秋节.jpg" alt="民俗文化" class="w-full h-44 object-cover">
+                    <button onclick="startQuiz('folk')" class="w-full btn-primary rounded-t-none">
+                        <i class="fa fa-users mr-2"></i>民俗传统文化
+                    </button>
+                </div>
+
+                <!-- 非遗文化 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover">
+                    <img src="img/刺绣.jpg" alt="非遗文化" class="w-full h-44 object-cover">
+                    <button onclick="startQuiz('intangible')" class="w-full btn-primary rounded-t-none">
+                        <i class="fa fa-university mr-2"></i>非遗文化
+                    </button>
+                </div>
+
+                <!-- 京剧文化 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover">
+                    <img src="img/京剧.jpg" alt="京剧文化" class="w-full h-44 object-cover">
+                    <button onclick="startQuiz('opera')" class="w-full btn-primary rounded-t-none">
+                        <i class="fa fa-music mr-2"></i>京剧文化
+                    </button>
+                </div>
+
+                <!-- 混合题库 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover">
+                    <img src="img/数据可视化背景图.png" alt="混合题库" class="w-full h-44 object-cover">
+                    <button onclick="startQuiz('mixed')" class="w-full btn-primary rounded-t-none">
+                        <i class="fa fa-random mr-2"></i>混合题库
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 答题区域 (默认隐藏) -->
+        <div id="quiz-container" class="hidden">
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <div class="mb-4">
+                    <span id="question-number" class="bg-primary text-white px-3 py-1 rounded-full text-sm">第1题</span>
+                    <h3 id="question" class="text-lg font-semibold mt-3">题目加载中...</h3>
+                </div>
+
+                <!-- 选项区域 -->
+                <div id="options" class="mt-4"></div>
+
+                <!-- 答案详解 -->
+                <div id="explanation" class="mt-6 p-4 bg-secondary/5 rounded-lg border-l-4 border-secondary hidden">
+                    <h4 class="font-semibold text-secondary"><i class="fa fa-lightbulb-o mr-1"></i>答案详解</h4>
+                    <p id="explanation-text" class="mt-2 text-gray-700"></p>
+                </div>
+
+                <button id="next-btn" onclick="nextQuestion()" class="btn-primary mt-6 hidden">
+                    下一题 <i class="fa fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 结果展示 -->
+        <div id="result-container" class="hidden text-center p-8 bg-white rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-primary mb-4">
+                <i class="fa fa-trophy text-yellow-500 mr-2"></i>答题完成！
+            </h2>
+            <div class="text-3xl font-bold text-secondary mb-3" id="title-text">文化初学者</div>
+            <div class="text-xl mb-6">
+                最终得分：<span id="final-score" class="font-bold text-secondary text-2xl">0 / 5</span>
+            </div>
+            <button onclick="resetQuiz()" class="btn-primary">
+                <i class="fa fa-refresh mr-1"></i>重新选择题库
+            </button>
+        </div>
+    </main>
+
+    <!-- 固定底部页脚 -->
+    <footer class="bg-primary text-white py-4 mt-auto">
+        <div class="container mx-auto px-4 text-center">
+            <p>传承中华优秀传统文化 © 2026 中华文化数字博物馆</p>
+        </div>
+    </footer>
+
+    <script>
+        const quizData = {
+            tea: [
+                { question: "中国六大茶类不包括以下哪一种？", options: ["绿茶", "红茶", "花茶", "乌龙茶"], correct: "花茶", explanation: "中国六大茶类为绿茶、红茶、乌龙茶、白茶、黄茶、黑茶，花茶属于再加工茶。" },
+                { question: "被誉为中国茶圣的是哪位历史人物？", options: ["李白", "陆羽", "苏轼", "张仲景"], correct: "陆羽", explanation: "陆羽著有世界第一部茶叶专著《茶经》，被尊为茶圣。" },
+                { question: "普洱茶的主要产地是我国哪个省份？", options: ["福建", "浙江", "云南", "四川"], correct: "云南", explanation: "普洱茶原产于云南，是中国国家地理标志产品。" },
+                { question: "绿茶制作的关键工艺是？", options: ["发酵", "萎凋", "杀青", "渥堆"], correct: "杀青", explanation: "杀青通过高温停止酶的活性，保持绿茶鲜绿的特点。" },
+                { question: "碧螺春产自哪里？", options: ["杭州", "苏州", "黄山", "武夷山"], correct: "苏州", explanation: "碧螺春产于江苏省苏州市太湖洞庭山一带。" }
+            ],
+            architecture: [
+                { question: "斗拱的主要作用不包括？", options: ["承重", "装饰", "防水", "抗震"], correct: "防水", explanation: "斗拱主要用于承重、装饰与抗震，不具备防水功能。" },
+                { question: "赵州桥建于哪个朝代？", options: ["隋朝", "唐朝", "宋朝", "明朝"], correct: "隋朝", explanation: "赵州桥由隋朝工匠李春设计，是世界最古老石拱桥。" },
+                { question: "北京故宫始建于？", options: ["唐朝", "宋朝", "元朝", "明朝"], correct: "明朝", explanation: "故宫于明朝永乐年间修建，是明清皇家宫殿。" },
+                { question: "江南第一楼是？", options: ["黄鹤楼", "岳阳楼", "滕王阁", "蓬莱阁"], correct: "滕王阁", explanation: "滕王阁因王勃《滕王阁序》名扬天下。" },
+                { question: "四合院主要分布在？", options: ["江南", "北京", "山西", "陕西"], correct: "北京", explanation: "四合院是北京最具代表性的传统民居。" }
+            ],
+            folk: [
+                { question: "贴春联起源于？", options: ["秦汉", "唐宋", "明清", "民国"], correct: "唐宋", explanation: "贴春联始于宋代，明代盛行，清代成为固定民俗。" },
+                { question: "端午节纪念谁？", options: ["孔子", "屈原", "岳飞", "杜甫"], correct: "屈原", explanation: "端午节为纪念爱国诗人屈原，有吃粽子、赛龙舟等习俗。" },
+                { question: "月饼象征？", options: ["团圆", "丰收", "长寿", "平安"], correct: "团圆", explanation: "月饼圆润，象征家庭团圆、和睦美满。" },
+                { question: "重阳节登高为了？", options: ["健身", "祭祖", "避灾", "观景"], correct: "避灾", explanation: "重阳节登高源于古代避灾祈福的传说。" },
+                { question: "红盖头寓意？", options: ["吉祥", "遮羞", "尊贵", "辟邪"], correct: "吉祥", explanation: "红盖头象征喜庆吉祥，是中式婚礼重要仪式。" }
+            ],
+            intangible: [
+                { question: "哪项不是非遗？", options: ["昆曲", "剪纸", "长城", "中医针灸"], correct: "长城", explanation: "长城是物质文化遗产，其余均为世界级非遗。" },
+                { question: "剪纸常用工具？", options: ["毛笔", "剪刀", "刻刀", "剪刀和刻刀"], correct: "剪刀和刻刀", explanation: "剪纸主要使用剪、刻两种工具。" },
+                { question: "古琴属于？", options: ["传统音乐", "传统舞蹈", "传统戏剧", "传统技艺"], correct: "传统音乐", explanation: "古琴是古老弹拨乐器，属于传统音乐类非遗。" },
+                { question: "二十四节气是？", options: ["物质遗产", "非遗", "自然遗产", "记忆遗产"], correct: "非遗", explanation: "二十四节气在2016年列入人类非物质文化遗产。" },
+                { question: "中国书法是？", options: ["非遗", "文物", "文献", "艺术品"], correct: "非遗", explanation: "中国书法是世界级非物质文化遗产。" }
+            ],
+            opera: [
+                { question: "京剧中旦是？", options: ["男性", "女性", "花脸", "丑角"], correct: "女性", explanation: "旦角是京剧女性角色统称，分青衣、花旦等。" },
+                { question: "红色脸谱代表？", options: ["忠勇", "狡诈", "刚正", "暴躁"], correct: "忠勇", explanation: "红色代表忠勇侠义，如关羽。" },
+                { question: "京剧经典是？", options: ["《天仙配》", "《霸王别姬》", "《花木兰》", "《红楼梦》"], correct: "霸王别姬", explanation: "《霸王别姬》是梅兰芳大师经典代表作。" },
+                { question: "京剧被称为？", options: ["东方歌剧", "中华戏曲", "国剧", "东方芭蕾"], correct: "国剧", explanation: "京剧是中国影响最大的戏曲剧种，被称为国剧。" },
+                { question: "四大名旦不包括？", options: ["梅兰芳", "程砚秋", "尚小云", "马连良"], correct: "马连良", explanation: "四大名旦：梅、尚、程、荀；马连良是生行代表。" }
+            ]
+        };
+
+        // 混合题库
+        function getMixedQuiz() {
+            let mixed = [];
+            Object.keys(quizData).forEach(cat => { mixed.push(...quizData[cat]); });
+            return mixed.sort(() => Math.random() - 0.5).slice(0, 5);
+        }
+
+        // 评分称号
+        function getTitle(score) {
+            if (score === 5) return '🏆 文化大师';
+            if (score === 4) return '📜 文化学者';
+            if (score === 3) return '📖 文化达人';
+            if (score === 2) return '🎓 文化爱好者';
+            return '🌱 文化初学者';
+        }
+
+        let currentCategory = '', currentQuiz = [], currentQuestionIndex = 0, score = 0;
+        const categoryNameEl = document.getElementById('category-name');
+        const scoreEl = document.getElementById('score');
+        const categorySelectEl = document.getElementById('category-select');
+        const quizContainerEl = document.getElementById('quiz-container');
+        const resultContainerEl = document.getElementById('result-container');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const explanationEl = document.getElementById('explanation');
+        const explanationTextEl = document.getElementById('explanation-text');
+        const nextBtnEl = document.getElementById('next-btn');
+        const finalScoreEl = document.getElementById('final-score');
+        const titleTextEl = document.getElementById('title-text');
+
+        function startQuiz(category) {
+            currentCategory = category;
+            currentQuestionIndex = 0;
+            score = 0;
+            if (category === 'mixed') {
+                currentQuiz = getMixedQuiz();
+                categoryNameEl.textContent = '混合题库';
+            } else {
+                currentQuiz = quizData[category];
+                const map = { tea:'茶文化', architecture:'古建筑文化', folk:'民俗传统文化', intangible:'非遗文化', opera:'京剧文化' };
+                categoryNameEl.textContent = map[category];
+            }
+            scoreEl.textContent = score;
+            categorySelectEl.classList.add('hidden');
+            resultContainerEl.classList.add('hidden');
+            quizContainerEl.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            optionsEl.innerHTML = '';
+            explanationEl.classList.add('hidden');
+            nextBtnEl.classList.add('hidden');
+            const q = currentQuiz[currentQuestionIndex];
+            questionNumberEl.textContent = `第${currentQuestionIndex + 1}题`;
+            questionEl.textContent = q.question;
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(btn, opt, q.correct);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(btn, sel, cor) {
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+            document.querySelectorAll('.option-btn').forEach(b => { if (b.textContent === cor) b.classList.add('option-correct'); });
+            if (sel === cor) { score++; scoreEl.textContent = score; }
+            explanationTextEl.textContent = currentQuiz[currentQuestionIndex].explanation;
+            explanationEl.classList.remove('hidden');
+            nextBtnEl.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuiz.length) loadQuestion();
+            else showResult();
+        }
+
+        function showResult() {
+            quizContainerEl.classList.add('hidden');
+            resultContainerEl.classList.remove('hidden');
+            finalScoreEl.textContent = `${score} / 5`;
+            titleTextEl.textContent = getTitle(score);
+        }
+
+        function resetQuiz() {
+            resultContainerEl.classList.add('hidden');
+            categorySelectEl.classList.remove('hidden');
+            categoryNameEl.textContent = '请选择题库';
+        }
+    </script>
+</body>
+</html>
