@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中华文化数字博物馆 - 文创商城</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* 主色调定义：国风红+典雅金+水墨黑 */
+        :root {
+            --main-red: #c41e3a;
+            --gold: #d4af37;
+            --dark: #2c2c2c;
+            --light: #f8f5f0;
+            --gray: #777;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 999;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--main-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--gold);
+        }
+
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--dark);
+            font-size: 16px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: var(--main-red);
+        }
+
+        /* 下拉菜单 */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            display: none;
+            list-style: none;
+        }
+
+        .dropdown-content li {
+            padding: 10px 15px;
+        }
+
+        .dropdown-content a {
+            display: block;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* 购物车图标 */
+        .cart-icon {
+            font-size: 20px;
+            color: var(--main-red);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--gold);
+            color: white;
+            font-size: 12px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 横幅样式 */
+        .banner {
+            margin-top: 80px;
+            height: 500px;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                        url('img/首页.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .banner h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .banner p {
+            font-size: 18px;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        /* 通用容器样式 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 60px auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+            color: var(--main-red);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: "";
+            width: 80px;
+            height: 3px;
+            background-color: var(--gold);
+            display: block;
+            margin: 10px auto;
+        }
+
+        /* 产品网格布局 */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        /* 产品卡片样式 */
+        .product-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            font-size: 20px;
+            color: var(--main-red);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .add-cart {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--main-red);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .add-cart:hover {
+            background-color: #a01830;
+        }
+
+        /* 分区间距 */
+        section {
+            padding: 40px 0;
+        }
+
+        /* 页脚样式 */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        /* 商品弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+            display: flex;
+            gap: 20px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-img {
+            width: 200px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .modal-info {
+            flex: 1;
+        }
+
+        .modal-name {
+            font-size: 24px;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .modal-price {
+            font-size: 22px;
+            color: var(--main-red);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .quantity-input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .address {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        /* 购物车弹窗 */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-content {
+            background-color: white;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-total {
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--main-red);
+            margin-top: 20px;
+        }
+		/* 完善的按钮样式 - 适配国风商城风格 */
+		.bt-style {
+		  /* 基础布局 */
+		  display: inline-flex;
+		  align-items: center;
+		  justify-content: center;
+		  height: 40px; /* 优化高度，适配商城按钮尺寸 */
+		  padding: 0 20px; /* 左右内边距，保证点击区域 */
+		  font-size: 15px;
+		  font-weight: 500;
+		  border: none;
+		  border-color: transparent;
+		  border-radius: 10px;
+		  /* 国风配色适配 */
+		  background-color: var(--main-red); /* 使用全局主色调，统一风格 */
+		  color: var(--light); /* 浅米色，替代原wheat更贴合整体风格 */
+		  /* 交互基础 */
+		  cursor: pointer;
+		  transition: all 0.3s ease; /* 平滑过渡所有交互效果 */
+		  outline: none;
+		  user-select: none; /* 防止点击时文字选中 */
+		  vertical-align: middle;
+		  box-shadow: 0 2px 5px rgba(196, 30, 58, 0.15); /* 轻微阴影提升质感 */
+		}
+		
+		/* 1. 悬停效果 - 加深红色+阴影强化 */
+		.bt-style:hover {
+		  background-color: #a01830; /* 原深红包色，保持视觉统一 */
+		  color: white;
+		  transform: translateY(-2px); /* 轻微上浮，增强交互感 */
+		  box-shadow: 0 4px 8px rgba(196, 30, 58, 0.2); /* 阴影放大 */
+		}
+		
+		/* 2. 点击激活效果 - 恢复位置+更深色 */
+		.bt-style:active {
+		  background-color: #8c1428;
+		  transform: translateY(0); /* 取消上浮，模拟按下 */
+		  box-shadow: 0 1px 3px rgba(196, 30, 58, 0.1); /* 阴影缩小 */
+		}
+		
+		/* 3. 禁用状态 - 灰化+不可点击 */
+		.bt-style:disabled {
+		  background-color: #d98090;
+		  color: #f0e6e0;
+		  cursor: not-allowed;
+		  transform: none; /* 禁用动画 */
+		  box-shadow: none;
+		  opacity: 0.7;
+		}
+		
+		/* 4. 尺寸变体 - 适配不同场景 */
+		.bt-style--sm { /* 小尺寸按钮 */
+		  height: 30px;
+		  padding: 0 15px;
+		  font-size: 13px;
+		  border-radius: 8px;
+		}
+		.bt-style--lg { /* 大尺寸按钮 */
+		  height: 48px;
+		  padding: 0 25px;
+		  font-size: 16px;
+		  border-radius: 12px;
+		}
+		
+		/* 5. 描边变体 - 国风描边按钮（扩展） */
+		.bt-style--outline {
+		  background-color: transparent;
+		  color: var(--main-red);
+		  border: 1px solid var(--main-red);
+		  box-shadow: none;
+		}
+		.bt-style--outline:hover {
+		  background-color: rgba(196, 30, 58, 0.05);
+		  color: #a01830;
+		}
+		
+		/* 6. 加载状态 - 配合JS使用（提交订单时） */
+		.bt-style--loading {
+		  pointer-events: none; /* 禁用点击 */
+		  opacity: 0.8;
+		}
+		.bt-style--loading::before {
+		  content: "";
+		  width: 16px;
+		  height: 16px;
+		  margin-right: 8px;
+		  border: 2px solid var(--light);
+		  border-top-color: transparent;
+		  border-radius: 50%;
+		  animation: bt-loading 1s linear infinite;
+		}
+		/* 加载动画关键帧 */
+		@keyframes bt-loading {
+		  0% { transform: rotate(0deg); }
+		  100% { transform: rotate(360deg); }
+		}
+		
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                gap: 15px;
+            }
+            .banner h1 {
+                font-size: 32px;
+            }
+            .section-title {
+                font-size: 26px;
+            }
+            .modal-content {
+                flex-direction: column;
+            }
+            .modal-img {
+                width: 100%;
+            }
+			.bt-style {
+		    height: 36px;
+		    padding: 0 18px;
+		    font-size: 14px;
+		  }
+		  .bt-style--lg {
+		    height: 44px;
+		    padding: 0 22px;
+		  }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-university"></i>
+            中华文化数字博物馆
+        </div>
+        <ul class="nav-menu">
+			<li><a href="../index.html">返回主页</a></li>
+            <li><a href="#home">首页</a></li>
+            <li class="dropdown">
+                <a href="#culture">文创展区 <i class="fas fa-angle-down"></i></a>
+                <ul class="dropdown-content">
+                    <li><a href="#jingju">京剧文化</a></li>
+                    <li><a href="#architecture">古建筑文化</a></li>
+                    <li><a href="#tea">茶文化</a></li>
+                    <li><a href="#craft">非遗工艺</a></li>
+                    <li><a href="#folk">民俗文化</a></li>
+                </ul>
+            </li>
+            <li>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- 首页横幅 -->
+    <section id="home" class="banner">
+        <h1>传承千年文脉 · 匠造国潮文创</h1>
+        <p>中华文化数字博物馆文创商城，汇聚京剧、古建筑、茶、非遗工艺、民俗五大文化板块，让传统文化走进现代生活</p>
+    </section>
+
+    <!-- 主体内容容器 -->
+    <div class="container">
+        <!-- 京剧文化展区 -->
+        <section id="jingju">
+            <h2 class="section-title">京剧文化文创</h2>
+            <div class="products-grid">
+                <div class="product-card" data-name="国粹京剧脸谱金属书签" data-price="39" data-img="img/书签.png">
+                    <img src="img/书签.png" alt="京剧脸谱书签" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">国粹京剧脸谱金属书签</h3>
+                        <p class="product-desc">经典生旦净丑脸谱造型，黄铜材质，文创礼品首选</p>
+                        <div class="product-price">¥39</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="Q版京剧人物树脂摆件" data-price="59" data-img="img/陶瓷京剧.png">
+                    <img src="img/陶瓷京剧.png" alt="京剧人物摆件" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">Q版京剧人物树脂摆件</h3>
+                        <p class="product-desc">萌系国风设计，桌面装饰工艺品</p>
+                        <div class="product-price">¥59</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="京剧脸谱陶瓷茶杯" data-price="89" data-img="img/京剧茶杯.png">
+                    <img src="img/京剧茶杯.png" alt="京剧脸谱茶具" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">京剧脸谱陶瓷茶杯</h3>
+                        <p class="product-desc">国粹元素融合茶具，中式美学实用好物</p>
+                        <div class="product-price">¥89</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 古建筑文化展区 -->
+        <section id="architecture">
+            <h2 class="section-title">古建筑文化文创</h2>
+            <div class="products-grid">
+                <div class="product-card" data-name="中式斗拱拼装积木" data-price="129" data-img="img/积木.png">
+                    <img src="img/积木.png" alt="斗拱积木" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">中式斗拱拼装积木</h3>
+                        <p class="product-desc">还原古建筑榫卯结构，益智文创摆件</p>
+                        <div class="product-price">¥129</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="古典窗花金属冰箱贴" data-price="29" data-img="img/窗花冰箱贴.png">
+                    <img src="img/窗花冰箱贴.png" alt="古建筑窗花冰箱贴" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">古典窗花金属冰箱贴</h3>
+                        <p class="product-desc">复刻中式古建筑窗花，家居文创</p>
+                        <div class="product-price">¥29</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="故宫角楼3D拼图模型" data-price="99" data-img="img/3d拼图.png">
+                    <img src="img/3d拼图.png" alt="故宫角楼模型" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">故宫角楼3D拼图模型</h3>
+                        <p class="product-desc">高精度复刻，古建筑收藏级文创</p>
+                        <div class="product-price">¥99</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 茶文化展区 -->
+        <section id="tea">
+            <h2 class="section-title">茶文化文创</h2>
+            <div class="products-grid">
+                <div class="product-card" data-name="便携中式旅行茶具套装" data-price="169" data-img="img/便携茶具.png">
+                    <img src="img/便携茶具.png" alt="中式便携茶具" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">便携中式旅行茶具套装</h3>
+                        <p class="product-desc">青瓷材质，简约禅意，户外品茶必备</p>
+                        <div class="product-price">¥169</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="紫砂茶宠创意摆件" data-price="49" data-img="img/茶宠.png">
+                    <img src="img/茶宠.png" alt="茶宠摆件" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">紫砂茶宠创意摆件</h3>
+                        <p class="product-desc">禅意茶道配件，茶桌装饰工艺品</p>
+                        <div class="product-price">¥49</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="国风陶瓷密封茶叶罐" data-price="79" data-img="img/茶罐.png">
+                    <img src="img/茶罐.png" alt="茶叶罐" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">国风陶瓷密封茶叶罐</h3>
+                        <p class="product-desc">山水图案设计，防潮储茶好物</p>
+                        <div class="product-price">¥79</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 非遗工艺展区 -->
+        <section id="craft">
+            <h2 class="section-title">非遗工艺文创</h2>
+            <div class="products-grid">
+                <div class="product-card" data-name="非遗剪纸艺术书签" data-price="35" data-img="img/窗花书签.png">
+                    <img src="img/窗花书签.png" alt="剪纸艺术书签" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">非遗剪纸艺术书签</h3>
+                        <p class="product-desc">纯手工剪纸工艺，国风文艺礼品</p>
+                        <div class="product-price">¥35</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="非遗手工刺绣平安挂件" data-price="89" data-img="img/平安符.png">
+                    <img src="img/平安符.png" alt="刺绣挂件" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">非遗手工刺绣平安挂件</h3>
+                        <p class="product-desc">传统苏绣工艺，祈福车载/包挂</p>
+                        <div class="product-price">¥89</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="非遗竹编小茶篓" data-price="69" data-img="img/茶娄.png">
+                    <img src="img/茶娄.png" alt="竹编工艺品" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">非遗竹编小茶篓</h3>
+                        <p class="product-desc">纯手工编织，复古中式收纳摆件</p>
+                        <div class="product-price">¥69</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 民俗文化展区 -->
+        <section id="folk">
+            <h2 class="section-title">民俗文化文创</h2>
+            <div class="products-grid">
+                <div class="product-card" data-name="传统手工中国结挂件" data-price="45" data-img="img/中国结.png">
+                    <img src="img/中国结.png" alt="中国结挂件" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">传统手工中国结挂件</h3>
+                        <p class="product-desc">新春祈福，中式家居装饰好物</p>
+                        <div class="product-price">¥45</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="民俗年画布艺抱枕" data-price="59" data-img="img/抱枕.png">
+                    <img src="img/抱枕.png" alt="年画抱枕" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">民俗年画布艺抱枕</h3>
+                        <p class="product-desc">传统门神年画元素，沙发靠垫</p>
+                        <div class="product-price">¥59</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product-card" data-name="十二生肖陶瓷摆件" data-price="75" data-img="img/十二生肖.png">
+                    <img src="img/十二生肖.png" alt="生肖摆件" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">十二生肖陶瓷摆件</h3>
+                        <p class="product-desc">民俗生肖文化，桌面装饰礼品</p>
+                        <div class="product-price">¥75</div>
+                        <button class="add-cart">加入购物车</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 商品详情弹窗 -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <img src=" " id="modalImg" class="modal-img">
+            <div class="modal-info">
+                <h2 class="modal-name" id="modalName"></h2>
+                <div class="modal-price" id="modalPrice"></div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" id="minusBtn">-</button>
+                    <input type="number" class="quantity-input" id="quantityInput" value="1" min="1">
+                    <button class="quantity-btn" id="plusBtn">+</button>
+                </div>
+                <div class="address">
+                    <strong>默认收货地址：</strong>广东江门
+                </div>
+                <button class="add-cart" id="modalAddCart">加入购物车</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 购物车弹窗 -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <span class="close-modal" id="closeCartModal">&times;</span>
+            <h2 style="margin-bottom:20px;">我的购物车</h2>
+            <div id="cartItemsList"></div>
+            <div class="cart-total" id="cartTotal">合计：¥0</div>
+			<div class="craft-card" style="margin-top: 20px; text-align: center;"><button class="bt-style">提交购买</button></div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>© 2025 中华文化数字博物馆 | 传承中华优秀传统文化</p>
+    </footer>
+
+    <script>
+        // 全局数据
+        let cart = [];
+        let currentProduct = {};
+
+        // DOM元素
+        const cartCount = document.getElementById('cartCount');
+        const cartIcon = document.getElementById('cartIcon');
+        const productModal = document.getElementById('productModal');
+        const cartModal = document.getElementById('cartModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeCartModal = document.getElementById('closeCartModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalName = document.getElementById('modalName');
+        const modalPrice = document.getElementById('modalPrice');
+        const quantityInput = document.getElementById('quantityInput');
+        const modalAddCart = document.getElementById('modalAddCart');
+        const plusBtn = document.getElementById('plusBtn');
+        const minusBtn = document.getElementById('minusBtn');
+        const cartItemsList = document.getElementById('cartItemsList');
+        const cartTotal = document.getElementById('cartTotal');
+        const productCards = document.querySelectorAll('.product-card');
+
+        // 点击商品打开弹窗
+        productCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                if(e.target.classList.contains('add-cart')) return;
+                const name = card.dataset.name;
+                const price = card.dataset.price;
+                const img = card.dataset.img;
+                
+                currentProduct = { name, price, img };
+                modalImg.src = img;
+                modalName.textContent = name;
+                modalPrice.textContent = `¥${price}`;
+                quantityInput.value = 1;
+                productModal.style.display = 'flex';
+            });
+        });
+
+        // 数量加减
+        plusBtn.addEventListener('click', () => {
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        });
+        minusBtn.addEventListener('click', () => {
+            if(parseInt(quantityInput.value) > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
+            }
+        });
+
+        // 弹窗加入购物车
+        modalAddCart.addEventListener('click', () => {
+            const quantity = parseInt(quantityInput.value);
+            const product = {
+                name: currentProduct.name,
+                price: parseFloat(currentProduct.price),
+                quantity: quantity,
+                total: parseFloat(currentProduct.price) * quantity
+            };
+
+            const exist = cart.find(item => item.name === product.name);
+            if(exist) {
+                exist.quantity += quantity;
+                exist.total = exist.price * exist.quantity;
+            } else {
+                cart.push(product);
+            }
+
+            updateCart();
+            productModal.style.display = 'none';
+            modalAddCart.textContent = '已加入';
+            setTimeout(() => modalAddCart.textContent = '加入购物车', 1000);
+        });
+
+        // 更新购物车数据与显示
+        function updateCart() {
+            let totalCount = 0;
+            let totalPrice = 0;
+            cart.forEach(item => {
+                totalCount += item.quantity;
+                totalPrice += item.total;
+            });
+            cartCount.textContent = totalCount;
+            cartTotal.textContent = `合计：¥${totalPrice}`;
+            renderCartItems();
+        }
+
+        // 渲染购物车列表
+        function renderCartItems() {
+            cartItemsList.innerHTML = '';
+            cart.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div>${item.name}</div>
+                    <div>¥${item.price} × ${item.quantity} = <strong>¥${item.total}</strong></div>
+                `;
+                cartItemsList.appendChild(div);
+            });
+        }
+
+        // 打开/关闭购物车
+        cartIcon.addEventListener('click', () => {
+            cartModal.style.display = 'flex';
+        });
+        closeModal.addEventListener('click', () => productModal.style.display = 'none');
+        closeCartModal.addEventListener('click', () => cartModal.style.display = 'none');
+
+        // 点击空白关闭弹窗
+        window.addEventListener('click', (e) => {
+            if(e.target === productModal) productModal.style.display = 'none';
+            if(e.target === cartModal) cartModal.style.display = 'none';
+        });
+
+        // 卡片加入购物车按钮
+        document.querySelectorAll('.add-cart').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = btn.closest('.product-card');
+                const name = card.dataset.name;
+                const price = parseFloat(card.dataset.price);
+                
+                const exist = cart.find(item => item.name === name);
+                if(exist) {
+                    exist.quantity += 1;
+                    exist.total = exist.price * exist.quantity;
+                } else {
+                    cart.push({ name, price, quantity: 1, total: price });
+                }
+                updateCart();
+                btn.textContent = '已加入';
+                setTimeout(() => btn.textContent = '加入购物车', 1000);
+            });
+        });
+		// 提交购买按钮功能
+		const submitBtn = document.querySelector('.bt-style');
+		if(submitBtn) {
+		  submitBtn.addEventListener('click', () => {
+		    // 1. 校验购物车是否为空
+		    if(cart.length === 0) {
+		      alert('购物车为空，请先添加商品！');
+		      return;
+		    }
+		
+		    // 2. 显示加载状态
+		    submitBtn.classList.add('bt-style--loading');
+		    submitBtn.textContent = '提交中...';
+		
+		    // 3. 模拟接口请求（2秒后完成）
+		    setTimeout(() => {
+		      submitBtn.classList.remove('bt-style--loading');
+		      submitBtn.textContent = '提交成功';
+		      alert('订单提交成功！');
+		      // 清空购物车
+		      cart = [];
+		      updateCart();
+		      // 关闭购物车弹窗
+		      cartModal.style.display = 'none';
+		      // 恢复按钮文字
+		      setTimeout(() => submitBtn.textContent = '提交购买', 1500);
+		    }, 2000);
+		  });
+		}
+    </script>
+</body>
+</html>
