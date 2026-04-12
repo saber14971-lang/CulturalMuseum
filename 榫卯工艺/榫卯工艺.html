@@ -483,7 +483,7 @@ let audio = null;
 const musicBtn = document.getElementById('musicBtn');
 musicBtn.onclick = () => {
   if(!audio){
-    audio = new Audio('music/徐梦圆 - 采茶纪（Ins）.mp3');
+    audio = new Audio('music/背景音乐.mp3');
     audio.loop = true;
   }
   if(audio.paused){audio.play();musicBtn.textContent='暂停音乐';}
