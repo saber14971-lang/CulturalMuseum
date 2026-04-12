@@ -194,7 +194,7 @@
             overflow: hidden;
             box-shadow: 0 3px 10px rgba(0,0,0,0.08);
             transition: 0.3s;
-            cursor: pointer;
+            /* 移除卡片的鼠标指针样式，因为点击卡片不再触发弹窗 */
         }
 
         .product-card:hover {
@@ -781,22 +781,8 @@
         const cartTotal = document.getElementById('cartTotal');
         const productCards = document.querySelectorAll('.product-card');
 
-        // 点击商品打开弹窗
-        productCards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                if(e.target.classList.contains('add-cart')) return;
-                const name = card.dataset.name;
-                const price = card.dataset.price;
-                const img = card.dataset.img;
-                
-                currentProduct = { name, price, img };
-                modalImg.src = img;
-                modalName.textContent = name;
-                modalPrice.textContent = `¥${price}`;
-                quantityInput.value = 1;
-                productModal.style.display = 'flex';
-            });
-        });
+        // 移除原商品卡片点击弹窗的逻辑 ← 核心修改1
+        // （删除了原productCards.forEach(card => { card.addEventListener('click', ...) }) 这段代码）
 
         // 数量加减
         plusBtn.addEventListener('click', () => {
@@ -808,7 +794,7 @@
             }
         });
 
-        // 弹窗加入购物车
+        // 弹窗内加入购物车按钮逻辑（保留）
         modalAddCart.addEventListener('click', () => {
             const quantity = parseInt(quantityInput.value);
             const product = {
@@ -872,26 +858,28 @@
             if(e.target === cartModal) cartModal.style.display = 'none';
         });
 
-        // 卡片加入购物车按钮
+        // 核心修改2：重写加入购物车按钮逻辑 → 点击后先打开弹窗，而非直接加购
         document.querySelectorAll('.add-cart').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const card = btn.closest('.product-card');
-                const name = card.dataset.name;
-                const price = parseFloat(card.dataset.price);
-                
-                const exist = cart.find(item => item.name === name);
-                if(exist) {
-                    exist.quantity += 1;
-                    exist.total = exist.price * exist.quantity;
-                } else {
-                    cart.push({ name, price, quantity: 1, total: price });
-                }
-                updateCart();
-                btn.textContent = '已加入';
-                setTimeout(() => btn.textContent = '加入购物车', 1000);
-            });
+            // 排除弹窗内的加入购物车按钮（仅处理商品卡片上的按钮）
+            if(btn.id !== 'modalAddCart') {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const card = btn.closest('.product-card');
+                    const name = card.dataset.name;
+                    const price = card.dataset.price;
+                    const img = card.dataset.img;
+                    
+                    // 填充弹窗数据并打开弹窗
+                    currentProduct = { name, price, img };
+                    modalImg.src = img;
+                    modalName.textContent = name;
+                    modalPrice.textContent = `¥${price}`;
+                    quantityInput.value = 1;
+                    productModal.style.display = 'flex';
+                });
+            }
         });
+		
 		// 提交购买按钮功能
 		const submitBtn = document.querySelector('.bt-style');
 		if(submitBtn) {
